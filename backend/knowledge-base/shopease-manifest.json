@@ -1,0 +1,860 @@
+{
+  "manifestVersion": "1.0.0",
+  "generatedAt": "2026-11-04T11:50:09.748Z",
+  "documentCount": 7,
+  "chunkCount": 39,
+  "documents": [
+    {
+      "sourceId": "shopease-loyalty-program",
+      "sourceTitle": "ShopEase Rewards Loyalty Program",
+      "category": "Loyalty & Rewards",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+      "sectionCount": 6,
+      "totalChunks": 6
+    },
+    {
+      "sourceId": "shopease-order-cancellation-policy",
+      "sourceTitle": "ShopEase Order Cancellation Policy",
+      "category": "Orders & Cancellations",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+      "sectionCount": 5,
+      "totalChunks": 5
+    },
+    {
+      "sourceId": "shopease-payments-policy",
+      "sourceTitle": "ShopEase Payments Policy",
+      "category": "Payments & Checkout",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/payments-policy.md",
+      "sectionCount": 5,
+      "totalChunks": 5
+    },
+    {
+      "sourceId": "shopease-product-warranty",
+      "sourceTitle": "ShopEase Product Warranty",
+      "category": "Warranties & Protection",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/product-warranty.md",
+      "sectionCount": 5,
+      "totalChunks": 5
+    },
+    {
+      "sourceId": "shopease-refunds-policy",
+      "sourceTitle": "ShopEase Refunds Policy",
+      "category": "Refunds & Billing",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+      "sectionCount": 5,
+      "totalChunks": 5
+    },
+    {
+      "sourceId": "shopease-returns-policy",
+      "sourceTitle": "ShopEase Returns Policy",
+      "category": "Returns & Exchanges",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/returns-policy.md",
+      "sectionCount": 7,
+      "totalChunks": 8
+    },
+    {
+      "sourceId": "shopease-shipping-policy",
+      "sourceTitle": "ShopEase Shipping Policy",
+      "category": "Shipping & Delivery",
+      "version": "1.0.0",
+      "effectiveDate": "2026-01-01",
+      "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+      "sectionCount": 5,
+      "totalChunks": 5
+    }
+  ],
+  "chunks": [
+    {
+      "id": "shopease-loyalty-program#program-overview-and-enrollment#0",
+      "text": "ShopEase Rewards is our complimentary customer loyalty program designed to reward shoppers for their continued patronage. Enrollment is automatic and free for every registered customer account upon placing their first order or signing up on the website. Members earn reward points on every qualified purchase, gain access to exclusive member promotions, and enjoy special milestone perks.",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Program Overview and Enrollment",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Program Overview and Enrollment"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 0,
+        "contentHash": "9f8186e4fd92bc9a2a5be6554c3828ac75dd7dcaabdce4222ec37fd259d059f1",
+        "metadataHash": "fd7d824d3d1164746bce1ab78534e535aef3299a5dc909cbf8891c0bea23acae"
+      }
+    },
+    {
+      "id": "shopease-loyalty-program#earning-points-on-purchases#1",
+      "text": "Members earn reward points across all standard product purchases made through ShopEase:\n- **Base Earning Rate:** Customers earn 1 reward point for every $1.00 spent on qualifying merchandise (calculated on net item subtotal after applied discounts, excluding taxes and shipping fees).\n- **Promotional Multipliers:** ShopEase hosts periodic \"Double Points Days\" and seasonal flash events where select categories earn 2x or 3x reward points.\n- Points are credited to the customer loyalty balance as \"Pending\" upon order placement and become fully \"Available\" for redemption 30 days following order delivery (matching the standard return window).",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Earning Points on Purchases",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Earning Points on Purchases"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 1,
+        "contentHash": "934a8f8fdfda0e0a3f894d04e3c66c5b6ff435b478206d41a454b94071810df4",
+        "metadataHash": "8d7c73161237d736708d7ac2776701d84c2d7167c9dcccfc4d1f5eb3e0fb4754"
+      }
+    },
+    {
+      "id": "shopease-loyalty-program#redeeming-points-and-reward-values#2",
+      "text": "Available reward points can be redeemed directly at checkout as an instant cash discount:\n- **Conversion Rate:** 100 reward points equal a $5.00 discount on your order total (each individual point is valued at 5 cents).\n- **Redemption Increments:** Points may be redeemed in increments of 100 points (e.g., 100 points for $5 off, 200 points for $10 off, up to 1,000 points for $50 off per transaction).\n- Points can be combined with sitewide discount codes and manufacturer promotions, up to a maximum redemption discount covering 50% of the cart merchandise subtotal.",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Redeeming Points and Reward Values",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Redeeming Points and Reward Values"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 2,
+        "contentHash": "2dd70fee5bab4f02d83b4e75828ac87bd3890b0a243d6340f88ebe059b7f5ce1",
+        "metadataHash": "d99331aeb53045b3534173eaed380e6f2fa6d39ea70f6a5cdc751a17c381d257"
+      }
+    },
+    {
+      "id": "shopease-loyalty-program#points-expiration-and-account-activity#3",
+      "text": "ShopEase reward points remain active as long as the member maintains qualifying account activity:\n- Points expire 12 months after the last qualifying activity date.\n- A \"Qualifying Activity\" is defined as any merchandise purchase, points redemption, or product review submitted through the verified account.\n- Engaging in a qualifying activity automatically extends the expiration date of all active points in the balance for an additional 12 months.\n- Customers receive automated email reminder alerts 60 days and 30 days prior to any pending point expiration.",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Points Expiration and Account Activity",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Points Expiration and Account Activity"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 3,
+        "contentHash": "a293a017d35050d2b0b206acc424f85d5173fc816bdd6cb3c5ea6527d93f2a37",
+        "metadataHash": "ce7ba536597c26172896402a812145efcc4d4c171a6cbcfd74486ec7e6c29e6a"
+      }
+    },
+    {
+      "id": "shopease-loyalty-program#membership-tiers-and-exclusive-benefits#4",
+      "text": "ShopEase Rewards features three progressive membership tiers determined by annual calendar spend:\n- **Silver Tier ($0 to $499 annual spend):** Standard 1 point per $1 spent, early access to seasonal sales, and free standard shipping on orders over $50.\n- **Gold Tier ($500 to $999 annual spend):** 1.25 points per $1 spent (25% points bonus), free standard shipping on all orders with no minimum purchase requirement, and an annual $15 birthday reward voucher.\n- **Platinum Tier ($1,000+ annual spend):** 1.5 points per $1 spent (50% points bonus), free 2-day Express Shipping on all orders, dedicated VIP priority customer support, and quarterly double-point bonus weekends.",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Membership Tiers and Exclusive Benefits",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Membership Tiers and Exclusive Benefits"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 4,
+        "contentHash": "fdd8f4fb01108340339d51679a709690f5835c810ffeb033e7c85aa83c6a1178",
+        "metadataHash": "f9e60f54e679c6340158cb730fdc9ddd7e2537a48bbe062b279bc74df938a0cc"
+      }
+    },
+    {
+      "id": "shopease-loyalty-program#program-exclusions-and-restrictions#5",
+      "text": "To maintain program integrity, the following transactions and items are excluded from point accrual and redemption:\n- Reward points cannot be earned on the purchase of ShopEase Gift Cards, payment of state or local sales taxes, carrier shipping fees, or Care+ extended warranties.\n- Reward points have no cash surrender value, cannot be withdrawn as fiat currency, and are non-transferable between separate accounts.\n- In the event that an item is returned for a refund, any points earned from that specific item purchase will be deducted from the customer's loyalty balance.",
+      "metadata": {
+        "sourceId": "shopease-loyalty-program",
+        "sourceTitle": "ShopEase Rewards Loyalty Program",
+        "category": "Loyalty & Rewards",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Program Exclusions and Restrictions",
+        "headingHierarchy": [
+          "ShopEase Rewards Loyalty Program",
+          "Program Exclusions and Restrictions"
+        ],
+        "sourcePath": "knowledge-base/shopease/loyalty-program.md",
+        "chunkIndex": 5,
+        "contentHash": "8ce43a188c21ead356eb54366733fb0ae61e069f5feb31224f49596c8e0aa46b",
+        "metadataHash": "7ec524734d1c15bb381e53aee2bd62a2624d8a2a2bdd5cdcdb75a605a766cc1b"
+      }
+    },
+    {
+      "id": "shopease-order-cancellation-policy#cancellation-window-and-timing#0",
+      "text": "ShopEase employs an automated fulfillment system to ensure fast dispatch of customer orders. As a result, cancellation requests are subject to strict timing criteria:\n- **Self-Service Cancellation:** Customers may cancel an order directly from their account dashboard within 60 minutes of placing the order, provided the fulfillment center has not yet begun picking and packaging the items.\n- Once an order transitions to \"Fulfillment in Progress\" or \"Dispatched\", automated cancellation is no longer possible.",
+      "metadata": {
+        "sourceId": "shopease-order-cancellation-policy",
+        "sourceTitle": "ShopEase Order Cancellation Policy",
+        "category": "Orders & Cancellations",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Cancellation Window and Timing",
+        "headingHierarchy": [
+          "ShopEase Order Cancellation Policy",
+          "Cancellation Window and Timing"
+        ],
+        "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+        "chunkIndex": 0,
+        "contentHash": "e7c76a4a49f65819b9974d811157806121767781c26034a18e8d311ce03e8195",
+        "metadataHash": "d6c353eda3bd7d76b1d630399b0c5a646fb9fbe1bb60d80e1e56ec9ffcee26ce"
+      }
+    },
+    {
+      "id": "shopease-order-cancellation-policy#how-to-cancel-an-order#1",
+      "text": "To request a cancellation within the permissible 60-minute window:\n1. Log into your ShopEase account and go to the \"Order History\" section.\n2. Locate the relevant order and check the current status banner.\n3. If the \"Cancel Order\" button is visible and active, click it and select your reason for cancellation.\n4. Confirm the cancellation prompt. An on-screen confirmation and an automated email notification will confirm that the order has been successfully voided.\nIf the \"Cancel Order\" button is disabled or missing, the order has already advanced into fulfillment processing.",
+      "metadata": {
+        "sourceId": "shopease-order-cancellation-policy",
+        "sourceTitle": "ShopEase Order Cancellation Policy",
+        "category": "Orders & Cancellations",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "How to Cancel an Order",
+        "headingHierarchy": [
+          "ShopEase Order Cancellation Policy",
+          "How to Cancel an Order"
+        ],
+        "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+        "chunkIndex": 1,
+        "contentHash": "780e95317c01e3faf48457577d8b8a01e50e5adf46f31b313932f2da6ac132d2",
+        "metadataHash": "1c669e496640d74a1152b996d42e981c1aafb641f7494732c64d651ad59af1eb"
+      }
+    },
+    {
+      "id": "shopease-order-cancellation-policy#post-dispatch-cancellations-and-in-transit-shipments#2",
+      "text": "Once an order has been picked, packaged, or handed to the shipping carrier:\n- An order cannot be recalled, stopped, or cancelled while in transit.\n- Customers who no longer wish to keep an item that has already dispatched should accept delivery of the parcel and subsequently initiate a standard return through our self-service returns portal within the 30-day return window.\n- Refusing delivery at the door is strongly discouraged, as refused packages often experience extended carrier return delays and may be subject to a $10.00 carrier return-to-sender penalty deduction.",
+      "metadata": {
+        "sourceId": "shopease-order-cancellation-policy",
+        "sourceTitle": "ShopEase Order Cancellation Policy",
+        "category": "Orders & Cancellations",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Post-Dispatch Cancellations and In-Transit Shipments",
+        "headingHierarchy": [
+          "ShopEase Order Cancellation Policy",
+          "Post-Dispatch Cancellations and In-Transit Shipments"
+        ],
+        "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+        "chunkIndex": 2,
+        "contentHash": "a8c0e8ee59282cd479f1e43f5625883eb5d32bff01c3f849e06f33ba8cfd8f30",
+        "metadataHash": "4d66807f3c093ad3478920fbfe06c0fd3a034bbb39194c42577408b2da4dd913"
+      }
+    },
+    {
+      "id": "shopease-order-cancellation-policy#cancellation-refunds#3",
+      "text": "When an order is successfully cancelled within the permitted window:\n- If the payment was merely held as an authorization, the hold is released immediately, and funds become accessible within 24 to 48 hours according to bank policy.\n- If the payment was already captured, a full refund including all merchandise charges, sales taxes, and shipping fees is initiated to the original payment method within 24 hours.",
+      "metadata": {
+        "sourceId": "shopease-order-cancellation-policy",
+        "sourceTitle": "ShopEase Order Cancellation Policy",
+        "category": "Orders & Cancellations",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Cancellation Refunds",
+        "headingHierarchy": [
+          "ShopEase Order Cancellation Policy",
+          "Cancellation Refunds"
+        ],
+        "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+        "chunkIndex": 3,
+        "contentHash": "43dd3f1c20233719003e06ed97eaf263e9aefcbeb15e7bea0a977c4506b0053d",
+        "metadataHash": "e94b3d5fffe062c0695d145dfc83aae6c89beb396c6a0e1e793df5e70c16ea52"
+      }
+    },
+    {
+      "id": "shopease-order-cancellation-policy#merchant-initiated-cancellations#4",
+      "text": "ShopEase reserves the right to cancel an order under exceptional operational circumstances:\n- **Inventory Discrepancy:** If an ordered item is identified as out of stock due to sudden warehouse inventory variance.\n- **Security and Fraud Verification:** If an order triggers automated security flags or the billing information cannot be verified after 48 hours.\nIn all merchant-cancelled cases, the customer is immediately notified by email, and a 100% full refund is issued without delay.",
+      "metadata": {
+        "sourceId": "shopease-order-cancellation-policy",
+        "sourceTitle": "ShopEase Order Cancellation Policy",
+        "category": "Orders & Cancellations",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Merchant-Initiated Cancellations",
+        "headingHierarchy": [
+          "ShopEase Order Cancellation Policy",
+          "Merchant-Initiated Cancellations"
+        ],
+        "sourcePath": "knowledge-base/shopease/order-cancellation-policy.md",
+        "chunkIndex": 4,
+        "contentHash": "927c9e99b59942f475529689ec9bc34cf1ffd4d0281a1595dd089d0d2133db81",
+        "metadataHash": "8531b0b217a7d7afab3cf701570159151ba4ff2d0a037897d0b96c1c031f0f63"
+      }
+    },
+    {
+      "id": "shopease-payments-policy#accepted-payment-methods#0",
+      "text": "ShopEase provides a secure, friction-free checkout experience supporting a wide selection of payment options:\n- **Major Credit and Debit Cards:** Visa, MasterCard, American Express, and Discover.\n- **Digital Wallets:** Apple Pay, Google Pay, and PayPal Express Checkout.\n- **ShopEase Store Credit and Gift Cards:** May be applied independently or combined with an eligible credit card to cover split balances.\nWe do not accept cash on delivery (COD), money orders, personal checks, or direct bank wire transfers.",
+      "metadata": {
+        "sourceId": "shopease-payments-policy",
+        "sourceTitle": "ShopEase Payments Policy",
+        "category": "Payments & Checkout",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Accepted Payment Methods",
+        "headingHierarchy": [
+          "ShopEase Payments Policy",
+          "Accepted Payment Methods"
+        ],
+        "sourcePath": "knowledge-base/shopease/payments-policy.md",
+        "chunkIndex": 0,
+        "contentHash": "31c9558d4fbee9579d26a094ed037e71c22ae20b8f8b3e20dd5dfd6b2584fc65",
+        "metadataHash": "73e7dd851c9bfe5450031fe908a31396bcc025e08f24f4bd2e4e3bf3aa5ddf48"
+      }
+    },
+    {
+      "id": "shopease-payments-policy#payment-security-and-data-protection#1",
+      "text": "Customer security is paramount at ShopEase. All transactions are processed using industry-standard 256-bit SSL encryption:\n- ShopEase is certified PCI-DSS Level 1 compliant, the highest standard in the payment card industry.\n- Full card numbers and security codes (CVV) are never stored on ShopEase application servers or databases; sensitive credentials are tokenized directly with banking gateways.\n- Advanced automated fraud screening is active across all incoming orders to protect shoppers against unauthorized identity theft.",
+      "metadata": {
+        "sourceId": "shopease-payments-policy",
+        "sourceTitle": "ShopEase Payments Policy",
+        "category": "Payments & Checkout",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Payment Security and Data Protection",
+        "headingHierarchy": [
+          "ShopEase Payments Policy",
+          "Payment Security and Data Protection"
+        ],
+        "sourcePath": "knowledge-base/shopease/payments-policy.md",
+        "chunkIndex": 1,
+        "contentHash": "3c57c3f408d891de75331bf9b06b8ea5ec6b94b64b2f285ad027b2e57cfaa79d",
+        "metadataHash": "0690742e53f5f608ce735ada58c8eacedf405769175d4743e0b8a105a37c7558"
+      }
+    },
+    {
+      "id": "shopease-payments-policy#payment-failures-and-declined-transactions#2",
+      "text": "In the event that an order payment is declined during checkout:\n- Common causes of payment declines include billing address mismatch (AVS mismatch), incorrect expiration dates or CVV codes, insufficient funds, or automated anti-fraud bank triggers.\n- When a payment is declined, the shopping cart remains preserved for 24 hours. The customer receives an alert email with a direct link to retry the transaction using a different card or alternate payment method.\n- If repeated authorization failures occur, we recommend contacting the card-issuing bank to authorize charges from ShopEase.",
+      "metadata": {
+        "sourceId": "shopease-payments-policy",
+        "sourceTitle": "ShopEase Payments Policy",
+        "category": "Payments & Checkout",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Payment Failures and Declined Transactions",
+        "headingHierarchy": [
+          "ShopEase Payments Policy",
+          "Payment Failures and Declined Transactions"
+        ],
+        "sourcePath": "knowledge-base/shopease/payments-policy.md",
+        "chunkIndex": 2,
+        "contentHash": "c544d649967de58361873aea3ebd67729cd2cd28ca23051f9c7d2babd153857c",
+        "metadataHash": "3c04478c01ad7bed1ff6f5a4996d959028dc54ccafb5597991b9f1786e6131f5"
+      }
+    },
+    {
+      "id": "shopease-payments-policy#duplicate-charges-and-authorization-holds#3",
+      "text": "Customers reviewing their online banking accounts may occasionally notice two similar charges shortly after order placement:\n- When an order is placed, an immediate temporary authorization hold is requested to verify sufficient balance. This is not a duplicate charge.\n- The actual capture of funds occurs only when the fulfillment center begins packaging the parcel.\n- Any temporary authorization hold that was not settled will automatically drop off the account within 2 to 5 business days, in accordance with the issuing bank's hold-release policy.\n- If a genuine duplicate settled charge appears on your statement after 5 business days, contact ShopEase Support with an excerpt of your statement showing both transaction IDs for an expedited release within 48 hours.",
+      "metadata": {
+        "sourceId": "shopease-payments-policy",
+        "sourceTitle": "ShopEase Payments Policy",
+        "category": "Payments & Checkout",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Duplicate Charges and Authorization Holds",
+        "headingHierarchy": [
+          "ShopEase Payments Policy",
+          "Duplicate Charges and Authorization Holds"
+        ],
+        "sourcePath": "knowledge-base/shopease/payments-policy.md",
+        "chunkIndex": 3,
+        "contentHash": "7a0bde36d304cef8c48c0ab66b3a24f100f26c6838fd08553568cf9555981efa",
+        "metadataHash": "f71941614190dac493c94e1ebb428cdd36b273338d1defed866ba5ac7e806e0c"
+      }
+    },
+    {
+      "id": "shopease-payments-policy#invoices-and-payment-confirmation#4",
+      "text": "Immediately following successful order placement and payment authorization:\n- A digital invoice and confirmation email detailing the order summary, line items, applicable sales tax, shipping fees, and masked payment details (e.g., Visa ending in 1234) is dispatched.\n- Printable PDF invoices are available on demand in the customer account dashboard under \"Order Details\".",
+      "metadata": {
+        "sourceId": "shopease-payments-policy",
+        "sourceTitle": "ShopEase Payments Policy",
+        "category": "Payments & Checkout",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Invoices and Payment Confirmation",
+        "headingHierarchy": [
+          "ShopEase Payments Policy",
+          "Invoices and Payment Confirmation"
+        ],
+        "sourcePath": "knowledge-base/shopease/payments-policy.md",
+        "chunkIndex": 4,
+        "contentHash": "f1852f3ceabdcf6d77e6afaac651d35dd0cfc24d04f3f5c210ae9f61ec56866e",
+        "metadataHash": "12b6b873d598a93bbfeec8e45b733c47aaa81861417dd1b93de41043faf48fbd"
+      }
+    },
+    {
+      "id": "shopease-product-warranty#standard-warranty-coverage-and-duration#0",
+      "text": "ShopEase stands behind the quality and reliability of every product we sell. All electronic appliances, household gadgets, personal audio equipment, power tools, and smart home devices include a standard one-year limited warranty from the confirmed date of carrier delivery. This standard manufacturer warranty protects the original purchaser against functional defects and workmanship flaws under normal indoor residential usage.",
+      "metadata": {
+        "sourceId": "shopease-product-warranty",
+        "sourceTitle": "ShopEase Product Warranty",
+        "category": "Warranties & Protection",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Standard Warranty Coverage and Duration",
+        "headingHierarchy": [
+          "ShopEase Product Warranty",
+          "Standard Warranty Coverage and Duration"
+        ],
+        "sourcePath": "knowledge-base/shopease/product-warranty.md",
+        "chunkIndex": 0,
+        "contentHash": "abff1efa0c6a9f923c530e556f52d68b290a6d78388c86d67ef94d8fa541a27c",
+        "metadataHash": "0620410a77711527de3efbc5aeb8fdbf7927910e091799dcc060adf8c1c179d8"
+      }
+    },
+    {
+      "id": "shopease-product-warranty#what-is-covered-under-warranty#1",
+      "text": "The ShopEase standard one-year warranty covers:\n- Manufacturing defects present in the internal materials or physical assembly of the product.\n- Mechanical and electrical component breakdown occurring during standard, intended household use.\n- Internal motor failures, heating element defects, sensor malfunctions, and display screen failures not caused by external shock or physical trauma.\n- Replacement parts and certified technician labor needed to restore the product to manufacturer specifications.",
+      "metadata": {
+        "sourceId": "shopease-product-warranty",
+        "sourceTitle": "ShopEase Product Warranty",
+        "category": "Warranties & Protection",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "What is Covered Under Warranty",
+        "headingHierarchy": [
+          "ShopEase Product Warranty",
+          "What is Covered Under Warranty"
+        ],
+        "sourcePath": "knowledge-base/shopease/product-warranty.md",
+        "chunkIndex": 1,
+        "contentHash": "355e9b63a4eeac6eb086a712062d4664d7bbff0868868bea251d1e1842cece1e",
+        "metadataHash": "c8fcfbd1473b6309961d4fe617d7da4c9cb1c938e71c853321bb0b82e99cbe28"
+      }
+    },
+    {
+      "id": "shopease-product-warranty#what-is-not-covered-exclusions#2",
+      "text": "The limited warranty strictly excludes damages resulting from accidents, neglect, or improper operation:\n- Cosmetic damage, including surface scratches, dents, paint discoloration, and standard aesthetic wear and tear.\n- Accidental damage resulting from drops, liquid spills, water submersion, fire, power surges, or environmental exposure.\n- Damage caused by unauthorized repairs, tampering, aftermarket firmware modification, or disassembly by uncertified parties.\n- Consumable parts designed to diminish over time (such as replacement batteries, blender blades, filters, and cosmetic light bulbs), unless failure is due to a defect in materials.\n- Commercial or industrial usage of products designed exclusively for consumer residential applications.",
+      "metadata": {
+        "sourceId": "shopease-product-warranty",
+        "sourceTitle": "ShopEase Product Warranty",
+        "category": "Warranties & Protection",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "What is Not Covered (Exclusions)",
+        "headingHierarchy": [
+          "ShopEase Product Warranty",
+          "What is Not Covered (Exclusions)"
+        ],
+        "sourcePath": "knowledge-base/shopease/product-warranty.md",
+        "chunkIndex": 2,
+        "contentHash": "e02fab5d96621b51ef650731069e1fe10159d189d84f2742af853b62bc675076",
+        "metadataHash": "98bbf1aeb0c49a3e76dd2c6e95fe768e768083b5047f0e40fca13f0850dd1310"
+      }
+    },
+    {
+      "id": "shopease-product-warranty#extended-protection-plans-shopease-care#3",
+      "text": "For enhanced peace of mind beyond the standard one-year warranty, customers may purchase ShopEase Care+ extended protection plans during initial checkout or within 30 days of item purchase:\n- **Care+ 2-Year Plan:** Extends full mechanical breakdown coverage to two full years and includes one instance of accidental damage coverage with a zero dollar deductible.\n- **Care+ 3-Year Plan:** Extends coverage to three full years, includes priority express repair service, two accidental damage replacements, and 24/7 dedicated technical concierge assistance.",
+      "metadata": {
+        "sourceId": "shopease-product-warranty",
+        "sourceTitle": "ShopEase Product Warranty",
+        "category": "Warranties & Protection",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Extended Protection Plans (ShopEase Care+)",
+        "headingHierarchy": [
+          "ShopEase Product Warranty",
+          "Extended Protection Plans (ShopEase Care+)"
+        ],
+        "sourcePath": "knowledge-base/shopease/product-warranty.md",
+        "chunkIndex": 3,
+        "contentHash": "98633ed517e432af9616778ccdf4b11274f49b22c0740b87c95c03aff8dbcb09",
+        "metadataHash": "dca157ac69f0d593423ae67364417b65a495b574560e1eca935a84f9a6ead5a6"
+      }
+    },
+    {
+      "id": "shopease-product-warranty#how-to-file-a-warranty-claim#4",
+      "text": "If an eligible product experiences a covered functional breakdown during the warranty period:\n1. Navigate to the ShopEase Warranty Portal in your account dashboard and select \"File Warranty Claim\".\n2. Enter the ShopEase order number, device serial number, and a detailed description of the malfunction.\n3. Attach a brief video or clear photograph showing the defect or operational failure.\n4. Our technical support team reviews claims within one business day. If troubleshooting fails to resolve the issue, a prepaid shipping label will be emailed for return to our diagnostic repair center.\n5. ShopEase will repair the item, provide a certified factory-refurbished unit, or issue a brand-new replacement within 7 to 10 business days of diagnostic receipt.",
+      "metadata": {
+        "sourceId": "shopease-product-warranty",
+        "sourceTitle": "ShopEase Product Warranty",
+        "category": "Warranties & Protection",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "How to File a Warranty Claim",
+        "headingHierarchy": [
+          "ShopEase Product Warranty",
+          "How to File a Warranty Claim"
+        ],
+        "sourcePath": "knowledge-base/shopease/product-warranty.md",
+        "chunkIndex": 4,
+        "contentHash": "519d094b2ecbe9d907c86686eeeaef98d918c46722302df00d5fc5d972ca255c",
+        "metadataHash": "9761d4f8591bc34db64390a23627b10ed4feaa9c0d31b9c786a7f773103b6746"
+      }
+    },
+    {
+      "id": "shopease-refunds-policy#refund-eligibility-and-approval-conditions#0",
+      "text": "Refunds are issued for products returned in compliance with the ShopEase Returns Policy, cancelled orders, or orders where carrier loss has been verified:\n- For physical returns, refunds are contingent upon warehouse inspection. Returned parcels undergo item verification and condition assessment within two business days of arriving at our central returns facility.\n- To receive a full refund, items must match the returned RMA manifest, be in acceptable physical condition, and include all bundled components.",
+      "metadata": {
+        "sourceId": "shopease-refunds-policy",
+        "sourceTitle": "ShopEase Refunds Policy",
+        "category": "Refunds & Billing",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Refund Eligibility and Approval Conditions",
+        "headingHierarchy": [
+          "ShopEase Refunds Policy",
+          "Refund Eligibility and Approval Conditions"
+        ],
+        "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+        "chunkIndex": 0,
+        "contentHash": "3cca6b57c8f0c3eddbe624347139ce3bc96493d57d86d4253a0c01357b6d8b18",
+        "metadataHash": "129d0f0c17d48bdbf7b33b2552f9117ff6cc2a73ef1a664742b1b1847b9f0e63"
+      }
+    },
+    {
+      "id": "shopease-refunds-policy#refund-processing-timelines#1",
+      "text": "Once a return is physically inspected and approved by our warehouse operations team:\n- The ShopEase billing system initiates the refund transaction within 3 to 5 business days following inspection approval.\n- An automated email notification confirming the processed refund amount and transaction reference ID is sent immediately upon initiation.\n- The actual time required for the credit to appear on the customer's billing statement depends on the financial institution or card issuer:\n  - Credit and Debit Cards: 5 to 10 business days depending on the issuing bank.\n  - PayPal and Digital Wallets: 1 to 3 business days.\n  - ShopEase Store Credit: Instant availability in the customer account immediately upon approval.",
+      "metadata": {
+        "sourceId": "shopease-refunds-policy",
+        "sourceTitle": "ShopEase Refunds Policy",
+        "category": "Refunds & Billing",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Refund Processing Timelines",
+        "headingHierarchy": [
+          "ShopEase Refunds Policy",
+          "Refund Processing Timelines"
+        ],
+        "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+        "chunkIndex": 1,
+        "contentHash": "68a13d4545a62e9e34121381e8da767933d84cd7fa5a7849e0b4d331848e8759",
+        "metadataHash": "5494035cdf4b9c3c8b5b7f356b1b425c3ef99a23052aeabcc3a33bbad4fb886e"
+      }
+    },
+    {
+      "id": "shopease-refunds-policy#method-of-refund-and-store-credit-bonus#2",
+      "text": "All approved refunds are returned to the original payment method utilized during checkout:\n- If an order was settled using a credit card, debit card, or PayPal, the refund will be credited directly back to that specific account.\n- In instances where the original payment card has expired or been cancelled, issuing banks automatically route the refund to the replacement account.\n- Customers may alternatively opt to receive their refund in ShopEase Store Credit. When choosing Store Credit, ShopEase applies an additional 5% bonus credit to the total refunded amount. Store Credit never expires and applies automatically to future purchases.",
+      "metadata": {
+        "sourceId": "shopease-refunds-policy",
+        "sourceTitle": "ShopEase Refunds Policy",
+        "category": "Refunds & Billing",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Method of Refund and Store Credit Bonus",
+        "headingHierarchy": [
+          "ShopEase Refunds Policy",
+          "Method of Refund and Store Credit Bonus"
+        ],
+        "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+        "chunkIndex": 2,
+        "contentHash": "f5b3f5d3cbcf6c9b746bd454e90ada9ea5ec5762ceb3a896d17d5c7cc5b34a36",
+        "metadataHash": "065394b5d1c0ac74b2e6739967ae34cee6694692128c64cc73c5a61450006c63"
+      }
+    },
+    {
+      "id": "shopease-refunds-policy#shipping-fee-refunds#3",
+      "text": "Shipping fees are refunded under specific conditions:\n- If a return is caused by a ShopEase fulfillment error (such as receiving the wrong item, size, or color) or if the product arrives defective or damaged, the original outbound shipping fee is refunded in full.\n- For voluntary returns based on customer preference, buyer's remorse, or improper fit, outbound shipping fees (including standard or express charges) are non-refundable.",
+      "metadata": {
+        "sourceId": "shopease-refunds-policy",
+        "sourceTitle": "ShopEase Refunds Policy",
+        "category": "Refunds & Billing",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Shipping Fee Refunds",
+        "headingHierarchy": [
+          "ShopEase Refunds Policy",
+          "Shipping Fee Refunds"
+        ],
+        "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+        "chunkIndex": 3,
+        "contentHash": "6c04865c2c27c50cde15302bef4c6967df6fd40d9e0ea19c7d4b7170b40975dd",
+        "metadataHash": "06c6ae80590e19f99874c8cf03ae5249bb1ca3891e6065eb21a5b8d3cf171af9"
+      }
+    },
+    {
+      "id": "shopease-refunds-policy#restocking-deductions-and-partial-refunds#4",
+      "text": "Under standard return conditions, ShopEase does not charge restocking fees. However, partial deductions may apply in specific circumstances:\n- If an item is returned with missing manufacturer accessories, power cords, adapters, or mounting hardware, a component deduction of up to 15% may be withheld from the refund.\n- If an item shows signs of non-defect customer misuse, excessive physical wear, or physical alterations, a restocking fee of up to 20% may be assessed, or the item may be returned to the customer at customer expense.",
+      "metadata": {
+        "sourceId": "shopease-refunds-policy",
+        "sourceTitle": "ShopEase Refunds Policy",
+        "category": "Refunds & Billing",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Restocking Deductions and Partial Refunds",
+        "headingHierarchy": [
+          "ShopEase Refunds Policy",
+          "Restocking Deductions and Partial Refunds"
+        ],
+        "sourcePath": "knowledge-base/shopease/refunds-policy.md",
+        "chunkIndex": 4,
+        "contentHash": "6492910cc057f5e4ba49bbd67e342667893563dc4c39f9dfc6fb100451977d1b",
+        "metadataHash": "6bb88c67a7b88eca58df22451b7896a1d860655f52dd23fada3b13d0a41e428a"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#overview-and-return-window#0",
+      "text": "At ShopEase, customer satisfaction is our top priority. We offer a standard 30-day return window for most physical products purchased through the ShopEase platform. The 30-day period begins on the calendar day the carrier marks the order as delivered. To qualify for a standard return, items must be in their original condition, accompanied by all manufacturer packaging, manuals, accessories, and unactivated warranty documentation.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Overview and Return Window",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Overview and Return Window"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 0,
+        "contentHash": "febfbff03f7974adcb4128b8c11f5ba1729ad24c777ccebff26ad44d9e0eb673",
+        "metadataHash": "ccc8014a6ddac0a0a5f075ddddc459df136d0524e645eefa2134209c682240d6"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#eligible-products-and-condition-guidelines#1",
+      "text": "Products eligible for standard return include apparel, home goods, unopened consumer electronics, kitchenware, fitness equipment, and books. Items must be unworn, unwashed, and free of personal modifications, odors, or pet hair. All original manufacturer tags, seals, and barcodes must remain intact and securely attached.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Eligible Products and Condition Guidelines",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Eligible Products and Condition Guidelines"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 1,
+        "contentHash": "ada9cfe951f5522b33b6ef3d0eb448f507d8aaf4b83f0ad38a58db4a564f14cd",
+        "metadataHash": "16d4a5db58ec9097caa90f26a9f254ec33a78bb81cfbe670fba2d37ca2364b6c"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#opened-packaging-and-inspection#2",
+      "text": "We understand that customers often need to open product packaging to inspect an item. Opened packaging is acceptable for return provided that the item has not been used, damaged, or registered with the manufacturer. When repacking the item, all internal protective bags, cables, mounting hardware, and instruction manuals must be included in the return shipment. Opened products undergo physical inspection upon arrival at our fulfillment center before a return is approved.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Opened Packaging and Inspection",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Opened Packaging and Inspection"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 2,
+        "contentHash": "ebb13ff1b6df9f4eca054f3549f5faae5233ef777ded7fcdab1f104ce1963e67",
+        "metadataHash": "c39af0b551659de697e032e2e9fda3ec1081961963167670a07136a31439ca22"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#defective-or-damaged-products#3",
+      "text": "Opened or used products that suffer from a manufacturing defect upon arrival or arrive damaged due to carrier handling are eligible for an immediate return or direct replacement within 30 days of receipt. In cases of defective or damaged merchandise, the customer is not charged any return shipping or restocking fees. Customers are requested to take clear photographs of the defect, damaged packaging, or error code to expedite the return authorization process.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Defective or Damaged Products",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Defective or Damaged Products"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 3,
+        "contentHash": "87ea2af2d5e4fa0f9a9921c8c2c0ba38fc5f311882ba77147db2332dc7a4813b",
+        "metadataHash": "3429baa36a70e2ae866418b471084bbd95522e026126504a49c536ed2650db7e"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#non-returnable-items-and-exclusions#4",
+      "text": "Certain product categories are strictly excluded from our standard return policy due to health, safety, and hygiene regulations:\n- Perishable goods, including gourmet food baskets, beverages, and organic grocery items.\n- Personal care, intimate apparel, swimwear, and hygiene products where the sanitary seal has been broken or removed.\n- Customized, personalized, or engraved items tailored specifically to the customer.\n- Digital downloads, software license keys, electronic gift cards, and downloadable vouchers once issued.\n- Items clearly designated as \"Final Sale\" or \"Clearance\" at the time of purchase.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Non-Returnable Items and Exclusions",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Non-Returnable Items and Exclusions"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 4,
+        "contentHash": "14b9a01c5190e50a9bc0505be84e7819dab15451f27ae7d96f01920eeaef1a14",
+        "metadataHash": "4c8d9503e3747b563e24052132fecf0fab6c9219e76aa5af2b0be159199b34f4"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#proof-of-purchase-requirements#5",
+      "text": "Every return must be substantiated by a verified proof of purchase. Acceptable proofs of purchase include:\n- The ShopEase order number (e.g., SE-XXXX-XXXXX) visible in your account dashboard.\n- The official digital order confirmation email sent at the time of purchase.\n- The physical packing slip or invoice included inside the delivered parcel.\nReturns cannot be accepted or processed without a verifiable ShopEase order record.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Proof of Purchase Requirements",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Proof of Purchase Requirements"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 5,
+        "contentHash": "c5d7a4ffa8e863222ad97cc9a09890cf03bb9abfe139c5c02c208e444da8abf3",
+        "metadataHash": "8e85e3f54f293d8c1e08f6812554e6c8cd299a08633029e15586c5d5ba1c3975"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#return-process-and-instructions#6",
+      "text": "To initiate a return, customers must use the self-service Return Merchandise Authorization (RMA) portal:\n1. Log into your ShopEase account, navigate to \"Order History\", select the order, and click \"Request Return\".\n2. Choose the specific items to return and select the reason for return from the dropdown menu.\n3. If the item is damaged or defective, upload up to three clear supporting photographs.\n4. Once the RMA request is submitted, a prepaid return shipping label and an RMA packing slip will be generated instantly for download and emailed to you.\n5. Securely pack the items inside the original shipping container or a sturdy box, insert the RMA packing slip inside the box, and affix the prepaid label to the exterior.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Return Process and Instructions",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Return Process and Instructions"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 6,
+        "contentHash": "4e49226a82bf9323b6eca65d5180e7c340af03d1fb09cb44117d4ef445388d12",
+        "metadataHash": "c042803f212f04e958390220ab6bd3a8fc82b0a769d0f0c700ec809666536146"
+      }
+    },
+    {
+      "id": "shopease-returns-policy#return-process-and-instructions#7",
+      "text": "6. Drop off the package at any authorized carrier drop-off location within 14 calendar days of receiving the return label.",
+      "metadata": {
+        "sourceId": "shopease-returns-policy",
+        "sourceTitle": "ShopEase Returns Policy",
+        "category": "Returns & Exchanges",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Return Process and Instructions",
+        "headingHierarchy": [
+          "ShopEase Returns Policy",
+          "Return Process and Instructions"
+        ],
+        "sourcePath": "knowledge-base/shopease/returns-policy.md",
+        "chunkIndex": 7,
+        "contentHash": "a11a9fa56e50064eeeef904fa0e48fe475a7dbb1f5cb003eda7c38334cc2f19c",
+        "metadataHash": "57f36767146b3dc769848c1bc0f479abf567d8bd8c0d88da1451c4a38cf09cdd"
+      }
+    },
+    {
+      "id": "shopease-shipping-policy#shipping-methods-and-delivery-estimates#0",
+      "text": "ShopEase partners with tier-one domestic logistics carriers (including FedEx, UPS, and USPS) to offer reliable delivery options across all service territories:\n- **Standard Shipping:** Delivers within 3 to 5 business days after carrier dispatch. Standard shipping is free on all orders with a merchandise subtotal of $50.00 or more (before taxes and after promotional discounts). For orders below $50.00, a flat shipping fee of $4.99 applies.\n- **Express Shipping:** Delivers within 1 to 2 business days after carrier dispatch. Express shipping is available for a flat rate of $14.99 on all orders regardless of cart total. Express delivery requires a physical street address and cannot be delivered to P.O. boxes.",
+      "metadata": {
+        "sourceId": "shopease-shipping-policy",
+        "sourceTitle": "ShopEase Shipping Policy",
+        "category": "Shipping & Delivery",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Shipping Methods and Delivery Estimates",
+        "headingHierarchy": [
+          "ShopEase Shipping Policy",
+          "Shipping Methods and Delivery Estimates"
+        ],
+        "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+        "chunkIndex": 0,
+        "contentHash": "7b88216f182fb1f1750c1f107d63a83041fd1d3fb53c401c37f13c74d0f2f351",
+        "metadataHash": "f9a225289e80d85d61370955253e43499ce2ab78e39d27bd87d1e2ac98574288"
+      }
+    },
+    {
+      "id": "shopease-shipping-policy#order-processing-and-dispatch-timelines#1",
+      "text": "Orders are processed and packaged at our fulfillment centers Monday through Friday, excluding official federal holidays:\n- Orders placed before 2:00 PM Eastern Standard Time (EST) on a business day are scheduled for dispatch on the same day.\n- Orders placed after 2:00 PM EST, on weekends, or during federal holidays are processed and dispatched on the following business day.\n- During peak seasonal promotional events (e.g., Black Friday, Cyber Week), order handling may take up to an additional 24 hours prior to carrier handoff.",
+      "metadata": {
+        "sourceId": "shopease-shipping-policy",
+        "sourceTitle": "ShopEase Shipping Policy",
+        "category": "Shipping & Delivery",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Order Processing and Dispatch Timelines",
+        "headingHierarchy": [
+          "ShopEase Shipping Policy",
+          "Order Processing and Dispatch Timelines"
+        ],
+        "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+        "chunkIndex": 1,
+        "contentHash": "c1b009b673f5043cee35922ae6e3bc46a3f101f224bf9b5159280a846802865e",
+        "metadataHash": "eb1b4e73f985db44bec7f44a24aba322f3f53c8fd7ec9fb0475ad17ebc6f44f8"
+      }
+    },
+    {
+      "id": "shopease-shipping-policy#service-areas-and-delivery-restrictions#2",
+      "text": "ShopEase currently ships to addresses within the fifty United States and the District of Columbia:\n- Deliveries to Alaska and Hawaii are serviced via Standard Air freight and typically require 5 to 7 business days for final arrival.\n- We do not currently service international addresses, APO/FPO/DPO military addresses, or freight-forwarding hubs. Orders directed to known freight forwarders will be automatically cancelled for security and fraud prevention.",
+      "metadata": {
+        "sourceId": "shopease-shipping-policy",
+        "sourceTitle": "ShopEase Shipping Policy",
+        "category": "Shipping & Delivery",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Service Areas and Delivery Restrictions",
+        "headingHierarchy": [
+          "ShopEase Shipping Policy",
+          "Service Areas and Delivery Restrictions"
+        ],
+        "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+        "chunkIndex": 2,
+        "contentHash": "1ae3bd2156b8d337f2fa948cff5e15677fc7cc57100f76196b4f604ad593eea3",
+        "metadataHash": "fb4e6fdc38210e61a32803b1936a56d5207ff88d5a9f7c68e35ca7b73335321a"
+      }
+    },
+    {
+      "id": "shopease-shipping-policy#tracking-and-delivery-notifications#3",
+      "text": "Once an order has been verified, packed, and handed over to the carrier:\n- An automated shipment confirmation email is immediately dispatched containing the assigned carrier name, tracking number, and direct tracking URL.\n- Tracking information typically updates in the carrier's digital tracking portal within 12 to 24 hours of package scanning.\n- Customers can track real-time parcel status directly within their ShopEase account under the \"Track Shipment\" section.",
+      "metadata": {
+        "sourceId": "shopease-shipping-policy",
+        "sourceTitle": "ShopEase Shipping Policy",
+        "category": "Shipping & Delivery",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Tracking and Delivery Notifications",
+        "headingHierarchy": [
+          "ShopEase Shipping Policy",
+          "Tracking and Delivery Notifications"
+        ],
+        "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+        "chunkIndex": 3,
+        "contentHash": "5361628218f4e605d4ef44a42af5150f3d852723d98c16c8d925e1a1bebe778a",
+        "metadataHash": "3689a6e4f091ef946938c6598976e9a645e1e77a2eb36d3aed67928fca3dfb3c"
+      }
+    },
+    {
+      "id": "shopease-shipping-policy#lost-damaged-or-delayed-shipments#4",
+      "text": "ShopEase provides complete coverage for items lost or damaged in transit:\n- If a package shows no tracking movement for seven consecutive business days, customers should contact ShopEase Support to initiate a formal carrier trace. If the carrier confirms the package is lost, a direct replacement will be dispatched via Express Shipping at no extra cost, or a full refund will be issued.\n- If a shipment arrives damaged, notify ShopEase Support within 48 hours of delivery with packaging photos to initiate a rapid replacement or full refund.",
+      "metadata": {
+        "sourceId": "shopease-shipping-policy",
+        "sourceTitle": "ShopEase Shipping Policy",
+        "category": "Shipping & Delivery",
+        "documentVersion": "1.0.0",
+        "effectiveDate": "2026-01-01",
+        "sectionTitle": "Lost, Damaged, or Delayed Shipments",
+        "headingHierarchy": [
+          "ShopEase Shipping Policy",
+          "Lost, Damaged, or Delayed Shipments"
+        ],
+        "sourcePath": "knowledge-base/shopease/shipping-policy.md",
+        "chunkIndex": 4,
+        "contentHash": "5ee57d92c47082a851b89def9f6ff7439dbc843f89095321de0f5de36758466a",
+        "metadataHash": "61cf6bda497b522401aca7789339ace254d241428e936b0528f3744e48e384e9"
+      }
+    }
+  ]
+}
