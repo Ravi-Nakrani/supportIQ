@@ -1,10 +1,16 @@
+import { z } from 'zod';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { LlmConfig, assertLlmConfig } from '../../../config/llm.config.js';
 import {
+  evidenceAssessmentSchema,
   ILlmChatService,
+  LlmAssessmentExecutionResult,
   LlmChatExecutionResult,
   LlmChatRequestOptions,
+  LlmChatStatus,
+  LlmRewriteExecutionResult,
+  queryRewriteSchema,
   rawLlmAnswerSchema,
 } from './types.js';
 
@@ -35,32 +41,37 @@ export class OpenAiChatService implements ILlmChatService {
   }
 
   /**
-   * Generates a structured response strictly conforming to rawLlmAnswerSchema.
+   * Internal generic executor for structured outputs via OpenAI SDK.
    */
-  async generateStructuredAnswer(
+  private async executeStructuredCall<T>(
+    schema: z.ZodType<T>,
+    schemaName: string,
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options?: LlmChatRequestOptions
-  ): Promise<LlmChatExecutionResult> {
+  ): Promise<{
+    status: LlmChatStatus;
+    data?: T;
+    finishReason?: string;
+    reason?: string;
+    rawRefusal?: string;
+  }> {
     const timeoutMs = options?.timeoutMs ?? this.config.timeoutMs;
     const maxRetries = options?.maxRetries ?? this.config.maxRetries;
     const maxCompletionTokens =
       options?.maxCompletionTokens ?? this.config.maxOutputTokens;
 
-    // Build Chat Completion params
     const requestPayload: OpenAI.Chat.ChatCompletionCreateParamsNonStreaming = {
       model: this.config.chatModel,
       messages,
       max_completion_tokens: maxCompletionTokens,
-      response_format: zodResponseFormat(rawLlmAnswerSchema, 'grounded_answer'),
+      response_format: zodResponseFormat(schema, schemaName),
     };
 
-    // Configure reasoning effort and temperature
     if (this.config.reasoningEffort === 'none') {
       requestPayload.reasoning_effort = 'none';
       requestPayload.temperature = this.config.temperature;
     } else {
       requestPayload.reasoning_effort = this.config.reasoningEffort;
-      // When reasoning_effort is enabled, temperature must be omitted
     }
 
     const requestOptions: OpenAI.RequestOptions = {
@@ -85,7 +96,6 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      // Check provider refusal
       if (choice.message.refusal) {
         return {
           status: 'REFUSAL',
@@ -95,7 +105,6 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      // Check token limit truncation
       if (choice.finish_reason === 'length') {
         return {
           status: 'TRUNCATED',
@@ -104,7 +113,6 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      // Check content filter
       if (choice.finish_reason === 'content_filter') {
         return {
           status: 'ERROR',
@@ -113,7 +121,6 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      // Check content presence
       const content = choice.message.content;
       if (!content || content.trim().length === 0) {
         return {
@@ -123,7 +130,6 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      // Parse and validate strictly against Zod schema
       let parsedJson: unknown;
       try {
         parsedJson = JSON.parse(content);
@@ -135,7 +141,7 @@ export class OpenAiChatService implements ILlmChatService {
         };
       }
 
-      const validated = rawLlmAnswerSchema.safeParse(parsedJson);
+      const validated = schema.safeParse(parsedJson);
       if (!validated.success) {
         const issues = validated.error.issues
           .map((i) => `${i.path.join('.')}: ${i.message}`)
@@ -174,5 +180,56 @@ export class OpenAiChatService implements ILlmChatService {
         reason: err instanceof Error ? err.message : String(err),
       };
     }
+  }
+
+  /**
+   * Generates a grounded answer strictly conforming to rawLlmAnswerSchema.
+   */
+  async generateStructuredAnswer(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmChatExecutionResult> {
+    return this.executeStructuredCall(
+      rawLlmAnswerSchema,
+      'grounded_answer',
+      messages,
+      options
+    );
+  }
+
+  /**
+   * Evaluates evidence sufficiency strictly conforming to evidenceAssessmentSchema.
+   */
+  async assessEvidence(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmAssessmentExecutionResult> {
+    return this.executeStructuredCall(
+      evidenceAssessmentSchema,
+      'evidence_assessment',
+      messages,
+      {
+        ...options,
+        maxCompletionTokens: options?.maxCompletionTokens ?? 250,
+      }
+    );
+  }
+
+  /**
+   * Reformulates search query strictly conforming to queryRewriteSchema.
+   */
+  async rewriteQuery(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmRewriteExecutionResult> {
+    return this.executeStructuredCall(
+      queryRewriteSchema,
+      'query_rewrite',
+      messages,
+      {
+        ...options,
+        maxCompletionTokens: options?.maxCompletionTokens ?? 250,
+      }
+    );
   }
 }

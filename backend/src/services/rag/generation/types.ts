@@ -103,6 +103,53 @@ export type GroundedAnswerStatus =
   | 'error';
 
 /**
+ * Execution status inside the LangGraph workflow.
+ * Initialized strictly to 'pending' to distinguish an active/unprocessed graph
+ * from a verified 'answered' terminal result.
+ */
+export type GraphExecutionStatus =
+  | 'pending'
+  | 'answered'
+  | 'insufficient_evidence'
+  | 'timeout'
+  | 'aborted'
+  | 'error';
+
+/**
+ * Strict schema for evidence sufficiency assessment.
+ */
+export const evidenceAssessmentSchema = z.object({
+  isSufficient: z.boolean().describe(
+    'True if retrieved chunks contain sufficient evidence to answer the user question accurately; false if insufficient or out-of-domain.'
+  ),
+  reason: z.string().describe(
+    'Concise diagnostic explanation of sufficiency or gap.'
+  ),
+});
+
+export type EvidenceAssessment = z.infer<typeof evidenceAssessmentSchema>;
+
+/**
+ * Strict schema for query reformulation.
+ * Requires trimmed, non-empty query up to 1,000 characters (aligned with retrieval limits).
+ */
+export const queryRewriteSchema = z.object({
+  rewrittenQuery: z
+    .string()
+    .trim()
+    .min(1, 'Rewritten query must not be empty')
+    .max(1000, 'Rewritten query must not exceed 1000 characters')
+    .describe(
+      'Targeted search query resolving pronouns or coreferences from history, max 1000 characters.'
+    ),
+  reason: z.string().describe(
+    'Concise justification for the rewrite.'
+  ),
+});
+
+export type QueryRewriteResult = z.infer<typeof queryRewriteSchema>;
+
+/**
  * Typed domain response from the RAG answer service.
  */
 export interface GroundedAnswerResult {
@@ -136,7 +183,7 @@ export type LlmChatStatus =
   | 'ERROR';
 
 /**
- * Raw execution result returned by ILlmChatService.
+ * Raw execution result returned by ILlmChatService for answer generation.
  */
 export interface LlmChatExecutionResult {
   status: LlmChatStatus;
@@ -147,6 +194,24 @@ export interface LlmChatExecutionResult {
 }
 
 /**
+ * Execution result for evidence assessment.
+ */
+export interface LlmAssessmentExecutionResult {
+  status: LlmChatStatus;
+  data?: EvidenceAssessment | undefined;
+  reason?: string | undefined;
+}
+
+/**
+ * Execution result for query rewriting.
+ */
+export interface LlmRewriteExecutionResult {
+  status: LlmChatStatus;
+  data?: QueryRewriteResult | undefined;
+  reason?: string | undefined;
+}
+
+/**
  * Interface decoupling the application from specific LLM provider implementations.
  */
 export interface ILlmChatService {
@@ -154,5 +219,15 @@ export interface ILlmChatService {
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options?: LlmChatRequestOptions
   ): Promise<LlmChatExecutionResult>;
+
+  assessEvidence(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmAssessmentExecutionResult>;
+
+  rewriteQuery(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmRewriteExecutionResult>;
 }
 
