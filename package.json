@@ -1,0 +1,25 @@
+{
+  "name": "supportiq",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"backend,frontend\" -c \"blue,magenta\" \"npm run dev --workspace=@supportiq/backend\" \"npm run dev --workspace=@supportiq/frontend\"",
+    "dev:backend": "npm run dev --workspace=@supportiq/backend",
+    "dev:frontend": "npm run dev --workspace=@supportiq/frontend",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "type-check": "npm run type-check --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
+
