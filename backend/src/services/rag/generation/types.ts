@@ -1,0 +1,158 @@
+import { z } from 'zod';
+
+/**
+ * Standard customer-facing refusal string returned when evidence is insufficient or ungrounded.
+ */
+export const STANDARD_REFUSAL_ANSWER =
+  "I couldn't find enough information about that in the ShopEase documentation.";
+
+/**
+ * Safe generic response strings for technical failures.
+ * Keeps internal provider/database error details out of user-facing responses.
+ */
+export const STANDARD_TECHNICAL_ERROR_ANSWER =
+  'An error occurred while processing your request. Please try again shortly.';
+
+export const STANDARD_TIMEOUT_ANSWER =
+  'The request timed out while retrieving policy information. Please try again.';
+
+export const STANDARD_ABORTED_ANSWER =
+  'The request was cancelled.';
+
+/**
+ * Standard suggested starter follow-ups offered when no policy evidence is found.
+ */
+export const DEFAULT_SUGGESTED_QUESTIONS = [
+  'What is the return policy for defective products?',
+  'How long does standard shipping take?',
+  'How long do refunds take after approval?',
+];
+
+/**
+ * Single source citation pointing back to a verified retrieved chunk.
+ */
+export interface SourceCitation {
+  id: string;
+  title: string;
+  section: string;
+  excerpt: string;
+}
+
+/**
+ * Candidate citation schema returned directly by the LLM.
+ */
+export const rawLlmCitationSchema = z.object({
+  chunkId: z.string().describe(
+    'Exact chunk id from <document_context> that directly supports this claim, e.g. "shopease-returns-policy#defective-products#1".'
+  ),
+  quote: z.string().describe(
+    'A verbatim excerpt from the chunk text that corroborates the claim.'
+  ),
+});
+
+export type RawLlmCitation = z.infer<typeof rawLlmCitationSchema>;
+
+/**
+ * Strict Structured Output schema enforced via OpenAI json_schema.
+ */
+export const rawLlmAnswerSchema = z.object({
+  answer: z.string().describe(
+    'A clear, factual response to the user question based strictly on the provided document context. If evidence is insufficient, provide the standard refusal.'
+  ),
+  hasSufficientEvidence: z.boolean().describe(
+    'True if the provided document context contains enough facts to answer the question accurately; false if the context lacks necessary information or is out-of-domain.'
+  ),
+  citations: z.array(rawLlmCitationSchema).describe(
+    'List of citations supporting the answer. Must be empty if hasSufficientEvidence is false.'
+  ),
+  suggestedFollowUps: z.array(z.string()).max(3).describe(
+    '0 to 3 relevant follow-up questions a ShopEase customer might ask based on this policy (empty if evidence is insufficient).'
+  ),
+});
+
+export type RawLlmAnswer = z.infer<typeof rawLlmAnswerSchema>;
+
+/**
+ * Conversation history message representation.
+ */
+export interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * Request payload to the RAG answer service.
+ */
+export interface GroundedAnswerRequest {
+  question: string;
+  history?: ConversationMessage[] | undefined;
+  topK?: number | undefined;
+  minScore?: number | undefined;
+  timeoutMs?: number | undefined;
+  signal?: AbortSignal | undefined;
+}
+
+/**
+ * Explicit domain outcomes of RAG answer generation.
+ */
+export type GroundedAnswerStatus =
+  | 'answered'
+  | 'insufficient_evidence'
+  | 'timeout'
+  | 'aborted'
+  | 'error';
+
+/**
+ * Typed domain response from the RAG answer service.
+ */
+export interface GroundedAnswerResult {
+  status: GroundedAnswerStatus;
+  answer: string;
+  sources: SourceCitation[];
+  suggestedFollowUps: string[];
+  reason?: string | undefined;
+  executionTimeMs: number;
+}
+
+/**
+ * Options for LLM chat invocations.
+ */
+export interface LlmChatRequestOptions {
+  timeoutMs?: number | undefined;
+  signal?: AbortSignal | undefined;
+  maxRetries?: number | undefined;
+  maxCompletionTokens?: number | undefined;
+}
+
+/**
+ * Explicit outcomes of an LLM chat invocation.
+ */
+export type LlmChatStatus =
+  | 'SUCCESS'
+  | 'TRUNCATED'
+  | 'REFUSAL'
+  | 'TIMEOUT'
+  | 'ABORTED'
+  | 'ERROR';
+
+/**
+ * Raw execution result returned by ILlmChatService.
+ */
+export interface LlmChatExecutionResult {
+  status: LlmChatStatus;
+  data?: RawLlmAnswer | undefined;
+  finishReason?: string | undefined;
+  reason?: string | undefined;
+  rawRefusal?: string | undefined;
+}
+
+/**
+ * Interface decoupling the application from specific LLM provider implementations.
+ */
+export interface ILlmChatService {
+  generateStructuredAnswer(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    options?: LlmChatRequestOptions
+  ): Promise<LlmChatExecutionResult>;
+}
+

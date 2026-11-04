@@ -60,6 +60,33 @@ export const envSchema = z.object({
     .min(100, 'RETRIEVAL_TIMEOUT_MS must be at least 100ms')
     .max(60000, 'RETRIEVAL_TIMEOUT_MS must be at most 60000ms')
     .default(2500),
+
+  // Phase 4: OpenAI Chat & Answer Generation
+  OPENAI_CHAT_MODEL: z.string().trim().min(1, 'OPENAI_CHAT_MODEL must not be empty').default('gpt-6-luna'),
+  LLM_TEMPERATURE: z.coerce
+    .number()
+    .min(0, 'LLM_TEMPERATURE must be at least 0.0')
+    .max(1, 'LLM_TEMPERATURE must be at most 1.0')
+    .default(0.0),
+  LLM_REASONING_EFFORT: z.enum(['none', 'low', 'medium', 'high']).default('none'),
+  LLM_MAX_OUTPUT_TOKENS: z.coerce
+    .number()
+    .int('LLM_MAX_OUTPUT_TOKENS must be an integer')
+    .min(50, 'LLM_MAX_OUTPUT_TOKENS must be at least 50')
+    .max(4000, 'LLM_MAX_OUTPUT_TOKENS must be at most 4000')
+    .default(800),
+  LLM_TIMEOUT_MS: z.coerce
+    .number()
+    .int('LLM_TIMEOUT_MS must be an integer')
+    .min(1000, 'LLM_TIMEOUT_MS must be at least 1000ms')
+    .max(30000, 'LLM_TIMEOUT_MS must be at most 30000ms')
+    .default(6000),
+  LLM_MAX_RETRIES: z.coerce
+    .number()
+    .int('LLM_MAX_RETRIES must be an integer')
+    .min(0, 'LLM_MAX_RETRIES must be at least 0')
+    .max(3, 'LLM_MAX_RETRIES must be at most 3')
+    .default(1),
 });
 
 export type Env = z.infer<typeof envSchema>;
