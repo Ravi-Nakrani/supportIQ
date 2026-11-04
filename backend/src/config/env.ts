@@ -26,6 +26,40 @@ export const envSchema = z.object({
     .string()
     .url('FRONTEND_ORIGIN must be a valid URL')
     .default('http://localhost:5173'),
+
+  // Phase 3: MongoDB Atlas Vector Search
+  MONGODB_URI: z.string().trim().min(1, 'MONGODB_URI must not be empty').optional(),
+  MONGODB_DB_NAME: z.string().trim().min(1).default('supportiq'),
+  MONGODB_VECTOR_COLLECTION: z.string().trim().min(1).default('knowledge_chunks'),
+  MONGODB_VECTOR_INDEX_NAME: z.string().trim().min(1).default('supportiq_vector_index'),
+
+  // Phase 3: OpenAI Embeddings
+  OPENAI_API_KEY: z.string().trim().min(1, 'OPENAI_API_KEY must not be empty').optional(),
+  OPENAI_EMBEDDING_MODEL: z.string().trim().min(1).default('text-embedding-3-small'),
+  OPENAI_EMBEDDING_DIMENSIONS: z.coerce
+    .number()
+    .int('OPENAI_EMBEDDING_DIMENSIONS must be an integer')
+    .positive('OPENAI_EMBEDDING_DIMENSIONS must be positive')
+    .default(1536),
+
+  // Phase 3: Retrieval Bounds & Thresholds
+  RETRIEVAL_DEFAULT_TOP_K: z.coerce
+    .number()
+    .int('RETRIEVAL_DEFAULT_TOP_K must be an integer')
+    .min(1, 'RETRIEVAL_DEFAULT_TOP_K must be at least 1')
+    .max(10, 'RETRIEVAL_DEFAULT_TOP_K must be at most 10')
+    .default(4),
+  RETRIEVAL_MIN_SCORE: z.coerce
+    .number()
+    .min(0, 'RETRIEVAL_MIN_SCORE must be at least 0.0')
+    .max(1, 'RETRIEVAL_MIN_SCORE must be at most 1.0')
+    .default(0.65),
+  RETRIEVAL_TIMEOUT_MS: z.coerce
+    .number()
+    .int('RETRIEVAL_TIMEOUT_MS must be an integer')
+    .min(100, 'RETRIEVAL_TIMEOUT_MS must be at least 100ms')
+    .max(60000, 'RETRIEVAL_TIMEOUT_MS must be at most 60000ms')
+    .default(2500),
 });
 
 export type Env = z.infer<typeof envSchema>;
