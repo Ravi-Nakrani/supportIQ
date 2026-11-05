@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import { assertSupportedModels } from './llmPricing.js';
 
 // Load variables from .env file into process.env if present
 dotenv.config();
@@ -87,6 +88,57 @@ export const envSchema = z.object({
     .min(0, 'LLM_MAX_RETRIES must be at least 0')
     .max(3, 'LLM_MAX_RETRIES must be at most 3')
     .default(1),
+
+  // Phase 6: Ingress Limits & Throttling
+  MAX_MESSAGE_CHARS: z.coerce
+    .number()
+    .int('MAX_MESSAGE_CHARS must be an integer')
+    .min(10, 'MAX_MESSAGE_CHARS must be at least 10')
+    .max(10000, 'MAX_MESSAGE_CHARS must be at most 10000')
+    .default(1000),
+  MAX_HISTORY_MESSAGES: z.coerce
+    .number()
+    .int('MAX_HISTORY_MESSAGES must be an integer')
+    .min(0, 'MAX_HISTORY_MESSAGES must be at least 0')
+    .max(50, 'MAX_HISTORY_MESSAGES must be at most 50')
+    .default(6),
+  RATE_LIMIT_WINDOW_MS: z.coerce
+    .number()
+    .int('RATE_LIMIT_WINDOW_MS must be an integer')
+    .min(1000, 'RATE_LIMIT_WINDOW_MS must be at least 1000ms')
+    .max(3600000, 'RATE_LIMIT_WINDOW_MS must be at most 3600000ms')
+    .default(600000),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce
+    .number()
+    .int('RATE_LIMIT_MAX_REQUESTS must be an integer')
+    .min(1, 'RATE_LIMIT_MAX_REQUESTS must be at least 1')
+    .max(1000, 'RATE_LIMIT_MAX_REQUESTS must be at most 1000')
+    .default(10),
+
+  // Phase 6: Persistent Daily Hard-Cap Budget
+  DAILY_MAX_REQUESTS: z.coerce
+    .number()
+    .int('DAILY_MAX_REQUESTS must be an integer')
+    .min(1, 'DAILY_MAX_REQUESTS must be at least 1')
+    .default(200),
+  DAILY_MAX_TOKENS: z.coerce
+    .number()
+    .int('DAILY_MAX_TOKENS must be an integer')
+    .min(1000, 'DAILY_MAX_TOKENS must be at least 1000')
+    .default(200000),
+  DAILY_MAX_BUDGET_MICRO_USD: z.coerce
+    .number()
+    .int('DAILY_MAX_BUDGET_MICRO_USD must be an integer')
+    .min(10000, 'DAILY_MAX_BUDGET_MICRO_USD must be at least 10000 μUSD ($0.01)')
+    .default(5000000), // $5.00 USD in integer micro-dollars
+  CHAT_CONCURRENCY_LIMIT: z.coerce
+    .number()
+    .int('CHAT_CONCURRENCY_LIMIT must be an integer')
+    .min(1, 'CHAT_CONCURRENCY_LIMIT must be at least 1')
+    .max(50, 'CHAT_CONCURRENCY_LIMIT must be at most 50')
+    .default(5),
+  MONGODB_USAGE_COLLECTION: z.string().trim().min(1).default('daily_usage'),
+  TRUST_PROXY: z.string().trim().default('false'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -117,6 +169,18 @@ export function validateEnv(
     }
 
     throw new Error(`Invalid environment configuration:\n${errorDetails}`);
+  }
+
+  // Phase 6: Fail closed at startup if configured models are deprecated or unverified
+  try {
+    assertSupportedModels(result.data.OPENAI_CHAT_MODEL, result.data.OPENAI_EMBEDDING_MODEL);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(message);
+    if (options.exitOnError) {
+      process.exit(1);
+    }
+    throw new Error(message);
   }
 
   return Object.freeze(result.data);

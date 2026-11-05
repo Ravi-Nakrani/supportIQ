@@ -78,11 +78,24 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
     );
 
     // 6. Map LLM Failure Outcomes
+    const usage = rewriteResult.usage;
+    const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
+    const promptTokens = usage?.promptTokens ?? 0;
+    const completionTokens = usage?.completionTokens ?? 0;
+    const totalTokens = promptTokens + completionTokens;
+
     if (rewriteResult.status === 'TIMEOUT') {
       return {
         retryCount: state.retryCount + 1,
         status: 'timeout',
         reason: rewriteResult.reason ?? 'Query rewrite timed out.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -91,6 +104,13 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
         retryCount: state.retryCount + 1,
         status: 'aborted',
         reason: rewriteResult.reason ?? 'Query rewrite was aborted.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -101,6 +121,13 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
         reason:
           rewriteResult.reason ??
           'Query rewrite failed to produce structured output.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -111,12 +138,26 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
         retryCount: state.retryCount + 1,
         status: 'error',
         reason: `Query rewrite produced invalid output: ${validated.error.message}`,
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
     return {
       retryCount: state.retryCount + 1,
       currentQuery: validated.data.rewrittenQuery,
+      accumulatedUsage: {
+        embeddingTokens: 0,
+        promptTokens,
+        completionTokens,
+        totalTokens,
+        isComplete: hasValidUsage,
+      },
     };
   };
 }

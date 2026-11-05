@@ -126,6 +126,9 @@ export class MockLlmChatService implements ILlmChatService {
 
     if (this.responseQueue.length > 0) {
       const nextResponse = this.responseQueue.shift()!;
+      if (nextResponse.status === 'SUCCESS' && !nextResponse.usage) {
+        nextResponse.usage = { promptTokens: 50, completionTokens: 50, totalTokens: 100 };
+      }
       return nextResponse;
     }
 
@@ -143,6 +146,7 @@ export class MockLlmChatService implements ILlmChatService {
         suggestedFollowUps: [],
       },
       finishReason: 'stop',
+      usage: { promptTokens: 50, completionTokens: 50, totalTokens: 100 },
     };
   }
 
@@ -164,7 +168,11 @@ export class MockLlmChatService implements ILlmChatService {
     }
 
     if (this.assessmentQueue.length > 0) {
-      return this.assessmentQueue.shift()!;
+      const nextAssessment = this.assessmentQueue.shift()!;
+      if (nextAssessment.status === 'SUCCESS' && !nextAssessment.usage) {
+        nextAssessment.usage = { promptTokens: 40, completionTokens: 10, totalTokens: 50 };
+      }
+      return nextAssessment;
     }
 
     // Default assessment: sufficient evidence
@@ -174,6 +182,7 @@ export class MockLlmChatService implements ILlmChatService {
         isSufficient: true,
         reason: 'Default mock assessment evaluated evidence as sufficient.',
       },
+      usage: { promptTokens: 40, completionTokens: 10, totalTokens: 50 },
     };
   }
 
@@ -195,7 +204,11 @@ export class MockLlmChatService implements ILlmChatService {
     }
 
     if (this.rewriteQueue.length > 0) {
-      return this.rewriteQueue.shift()!;
+      const nextRewrite = this.rewriteQueue.shift()!;
+      if (nextRewrite.status === 'SUCCESS' && !nextRewrite.usage) {
+        nextRewrite.usage = { promptTokens: 30, completionTokens: 15, totalTokens: 45 };
+      }
+      return nextRewrite;
     }
 
     // Default rewrite: returns original message query
@@ -205,6 +218,7 @@ export class MockLlmChatService implements ILlmChatService {
         rewrittenQuery: 'ShopEase return policy',
         reason: 'Default mock query reformulation.',
       },
+      usage: { promptTokens: 30, completionTokens: 15, totalTokens: 45 },
     };
   }
 }

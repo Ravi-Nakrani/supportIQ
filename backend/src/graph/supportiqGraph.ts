@@ -191,6 +191,7 @@ export class SupportIQGraphService {
           suggestedFollowUps: [],
           reason: finalState.reason ?? 'Master workflow deadline exceeded (20s).',
           executionTimeMs: totalElapsedMs,
+          usage: finalState.accumulatedUsage,
         };
       }
 
@@ -203,6 +204,7 @@ export class SupportIQGraphService {
           suggestedFollowUps: [],
           reason: finalState.reason ?? (callerSignal?.reason ? String(callerSignal.reason) : 'Operation aborted by caller.'),
           executionTimeMs: totalElapsedMs,
+          usage: finalState.accumulatedUsage,
         };
       }
 
@@ -215,6 +217,7 @@ export class SupportIQGraphService {
           suggestedFollowUps: [],
           reason: finalState.reason ?? 'Internal workflow error occurred.',
           executionTimeMs: totalElapsedMs,
+          usage: finalState.accumulatedUsage,
         };
       }
 
@@ -230,6 +233,7 @@ export class SupportIQGraphService {
               : DEFAULT_SUGGESTED_QUESTIONS,
           reason: finalState.reason,
           executionTimeMs: totalElapsedMs,
+          usage: finalState.accumulatedUsage,
         };
       }
 
@@ -241,6 +245,7 @@ export class SupportIQGraphService {
           sources: finalState.sources,
           suggestedFollowUps: finalState.suggestedFollowUps,
           executionTimeMs: totalElapsedMs,
+          usage: finalState.accumulatedUsage,
         };
       }
 
@@ -252,6 +257,7 @@ export class SupportIQGraphService {
         suggestedFollowUps: [],
         reason: `Graph completed in unexpected non-terminal state: "${finalState.status}".`,
         executionTimeMs: totalElapsedMs,
+        usage: finalState.accumulatedUsage,
       };
     } catch (err: unknown) {
       const totalElapsedMs = Date.now() - startTime;

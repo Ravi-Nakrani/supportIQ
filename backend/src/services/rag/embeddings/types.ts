@@ -43,4 +43,9 @@ export interface IEmbeddingService extends EmbeddingsInterface {
    * Returns the model identifier (e.g. 'text-embedding-3-small').
    */
   getModelName(): string;
+
+  /**
+   * Returns token usage from the most recent embedding call, if available.
+   */
+  getLastUsage?(): { promptTokens: number; totalTokens: number } | undefined;
 }

@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { VectorConfig, assertOpenAIConfig } from '../../../config/vector.config.js';
 import { EmbeddingRequestOptions, IEmbeddingService } from './types.js';
+import { countEmbeddingTokens } from '../../../utils/tokenCounter.js';
 
 export interface OpenAIEmbeddingServiceOptions {
   config: VectorConfig;
@@ -30,6 +31,7 @@ function buildRequestOptions(
 export class OpenAIEmbeddingService implements IEmbeddingService {
   private readonly config: VectorConfig;
   private readonly client: OpenAI;
+  private lastUsage?: { promptTokens: number; totalTokens: number };
 
   constructor(options: OpenAIEmbeddingServiceOptions) {
     this.config = options.config;
@@ -53,6 +55,13 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
       throw new Error('[Embedding Error] Query must be a non-empty string.');
     }
 
+    const estimatedTokens = countEmbeddingTokens(query, this.config.embeddingModel);
+    if (estimatedTokens > 300) {
+      throw new Error(
+        `[Embedding Error] Query exceeds maximum input token ceiling of 300 tokens (estimated: ${estimatedTokens}).`
+      );
+    }
+
     const response = await this.client.embeddings.create(
       {
         model: this.config.embeddingModel,
@@ -61,6 +70,13 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
       },
       buildRequestOptions(options, 0)
     );
+
+    if (response.usage) {
+      this.lastUsage = {
+        promptTokens: response.usage.prompt_tokens,
+        totalTokens: response.usage.total_tokens,
+      };
+    }
 
     const embedding = response.data[0]?.embedding;
     if (!embedding || !Array.isArray(embedding)) {
@@ -137,5 +153,9 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
 
   getModelName(): string {
     return this.config.embeddingModel;
+  }
+
+  getLastUsage(): { promptTokens: number; totalTokens: number } | undefined {
+    return this.lastUsage;
   }
 }

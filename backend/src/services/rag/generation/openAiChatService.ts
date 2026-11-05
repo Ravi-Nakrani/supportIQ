@@ -2,10 +2,12 @@ import { z } from 'zod';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { LlmConfig, assertLlmConfig } from '../../../config/llm.config.js';
+import { estimateChatRequestTokens } from '../../../utils/tokenCounter.js';
 import {
   evidenceAssessmentSchema,
   ILlmChatService,
   LlmAssessmentExecutionResult,
+  LlmCallUsage,
   LlmChatExecutionResult,
   LlmChatRequestOptions,
   LlmChatStatus,
@@ -47,18 +49,32 @@ export class OpenAiChatService implements ILlmChatService {
     schema: z.ZodType<T>,
     schemaName: string,
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
-    options?: LlmChatRequestOptions
+    options?: LlmChatRequestOptions,
+    maxInputTokens?: number
   ): Promise<{
     status: LlmChatStatus;
-    data?: T;
-    finishReason?: string;
-    reason?: string;
-    rawRefusal?: string;
+    data?: T | undefined;
+    finishReason?: string | undefined;
+    reason?: string | undefined;
+    rawRefusal?: string | undefined;
+    usage?: LlmCallUsage | undefined;
   }> {
     const timeoutMs = options?.timeoutMs ?? this.config.timeoutMs;
-    const maxRetries = options?.maxRetries ?? this.config.maxRetries;
+    // Interactive chat calls disable automatic SDK retries to bound latency and prevent retry token billing
+    const maxRetries = options?.maxRetries ?? 0;
     const maxCompletionTokens =
       options?.maxCompletionTokens ?? this.config.maxOutputTokens;
+
+    // Pre-flight input token estimate guard
+    if (maxInputTokens) {
+      const estimatedInputTokens = estimateChatRequestTokens(messages, null, this.config.chatModel);
+      if (estimatedInputTokens > maxInputTokens) {
+        return {
+          status: 'ERROR',
+          reason: `Prompt input token estimate exceeds ceiling of ${maxInputTokens} (estimated: ${estimatedInputTokens}).`,
+        };
+      }
+    }
 
     const requestPayload: OpenAI.Chat.ChatCompletionCreateParamsNonStreaming = {
       model: this.config.chatModel,
@@ -88,11 +104,20 @@ export class OpenAiChatService implements ILlmChatService {
         requestOptions
       );
 
+      const usage: LlmCallUsage | undefined = response.usage
+        ? {
+            promptTokens: response.usage.prompt_tokens,
+            completionTokens: response.usage.completion_tokens,
+            totalTokens: response.usage.total_tokens,
+          }
+        : undefined;
+
       const choice = response.choices?.[0];
       if (!choice) {
         return {
           status: 'ERROR',
           reason: 'OpenAI returned an empty response with no choices.',
+          usage,
         };
       }
 
@@ -102,6 +127,7 @@ export class OpenAiChatService implements ILlmChatService {
           finishReason: choice.finish_reason ?? undefined,
           rawRefusal: choice.message.refusal,
           reason: 'The LLM provider refused to process the request.',
+          usage,
         };
       }
 
@@ -110,6 +136,7 @@ export class OpenAiChatService implements ILlmChatService {
           status: 'TRUNCATED',
           finishReason: choice.finish_reason,
           reason: `Generation exceeded max_completion_tokens (${maxCompletionTokens}) and was truncated.`,
+          usage,
         };
       }
 
@@ -118,6 +145,7 @@ export class OpenAiChatService implements ILlmChatService {
           status: 'ERROR',
           finishReason: choice.finish_reason,
           reason: 'LLM provider output was blocked by content filtering.',
+          usage,
         };
       }
 
@@ -127,6 +155,7 @@ export class OpenAiChatService implements ILlmChatService {
           status: 'ERROR',
           finishReason: choice.finish_reason,
           reason: 'LLM provider returned empty message content.',
+          usage,
         };
       }
 
@@ -138,6 +167,7 @@ export class OpenAiChatService implements ILlmChatService {
           status: 'ERROR',
           finishReason: choice.finish_reason,
           reason: `Failed to parse structured JSON from model: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
+          usage,
         };
       }
 
@@ -150,6 +180,7 @@ export class OpenAiChatService implements ILlmChatService {
           status: 'ERROR',
           finishReason: choice.finish_reason,
           reason: `Structured output validation failed: ${issues}`,
+          usage,
         };
       }
 
@@ -157,6 +188,7 @@ export class OpenAiChatService implements ILlmChatService {
         status: 'SUCCESS',
         data: validated.data,
         finishReason: choice.finish_reason,
+        usage,
       };
     } catch (err: unknown) {
       if (options?.signal?.aborted) {
@@ -193,7 +225,11 @@ export class OpenAiChatService implements ILlmChatService {
       rawLlmAnswerSchema,
       'grounded_answer',
       messages,
-      options
+      {
+        ...options,
+        maxCompletionTokens: options?.maxCompletionTokens ?? this.config.maxOutputTokens,
+      },
+      3500 // Max prompt input token ceiling
     );
   }
 
@@ -210,8 +246,9 @@ export class OpenAiChatService implements ILlmChatService {
       messages,
       {
         ...options,
-        maxCompletionTokens: options?.maxCompletionTokens ?? 250,
-      }
+        maxCompletionTokens: options?.maxCompletionTokens ?? 100,
+      },
+      3000 // Max prompt input token ceiling
     );
   }
 
@@ -229,7 +266,8 @@ export class OpenAiChatService implements ILlmChatService {
       {
         ...options,
         maxCompletionTokens: options?.maxCompletionTokens ?? 250,
-      }
+      },
+      2200 // Max prompt input token ceiling
     );
   }
 }

@@ -90,6 +90,10 @@ export class RetrievalService {
         maxRetries: 0,
       });
 
+      const embeddingUsage = this.embeddingService.getLastUsage
+        ? this.embeddingService.getLastUsage()
+        : undefined;
+
       // 6. Mid-flight checkpoint after embedding
       if (isExternalAbort || options.signal?.aborted) {
         return {
@@ -168,6 +172,7 @@ export class RetrievalService {
           chunks: [],
           reason: `No retrieved chunks met the minimum similarity score threshold of ${minScore}.`,
           executionTimeMs: Date.now() - startTime,
+          usage: embeddingUsage,
         };
       }
 
@@ -175,6 +180,7 @@ export class RetrievalService {
         status: 'SUCCESS',
         chunks,
         executionTimeMs: Date.now() - startTime,
+        usage: embeddingUsage,
       };
     } catch (err: unknown) {
       const executionTimeMs = Date.now() - startTime;

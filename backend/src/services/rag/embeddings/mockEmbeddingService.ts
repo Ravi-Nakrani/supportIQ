@@ -24,6 +24,7 @@ export class MockEmbeddingService implements IEmbeddingService {
   public totalDocumentsEmbedded = 0;
   public lastQueryOptions?: EmbeddingRequestOptions | undefined;
   public lastDocumentOptions?: EmbeddingRequestOptions | undefined;
+  public lastUsage?: { promptTokens: number; totalTokens: number } | undefined;
 
   constructor(options: MockEmbeddingServiceOptions = {}) {
     this.modelName = options.modelName ?? 'mock-embedding-model';
@@ -91,6 +92,8 @@ export class MockEmbeddingService implements IEmbeddingService {
   async embedQuery(query: string, options?: EmbeddingRequestOptions): Promise<number[]> {
     this.queryCallCount++;
     this.lastQueryOptions = options;
+    const tokens = Math.max(1, Math.ceil(query.length / 4));
+    this.lastUsage = { promptTokens: tokens, totalTokens: tokens };
 
     await this.waitOrAbort(options);
     return this.generateVector(query);
@@ -118,5 +121,9 @@ export class MockEmbeddingService implements IEmbeddingService {
 
   getModelName(): string {
     return this.modelName;
+  }
+
+  getLastUsage(): { promptTokens: number; totalTokens: number } | undefined {
+    return this.lastUsage;
   }
 }

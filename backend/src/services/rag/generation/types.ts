@@ -150,6 +150,29 @@ export const queryRewriteSchema = z.object({
 export type QueryRewriteResult = z.infer<typeof queryRewriteSchema>;
 
 /**
+ * Token usage report for a single LLM provider call.
+ */
+export interface LlmCallUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+/**
+ * Workflow-wide aggregate usage metrics across all nodes.
+ *
+ * Invariant:
+ *   totalTokens === embeddingTokens + promptTokens + completionTokens
+ */
+export interface WorkflowUsageMetrics {
+  embeddingTokens: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  isComplete: boolean;
+}
+
+/**
  * Typed domain response from the RAG answer service.
  */
 export interface GroundedAnswerResult {
@@ -159,6 +182,7 @@ export interface GroundedAnswerResult {
   suggestedFollowUps: string[];
   reason?: string | undefined;
   executionTimeMs: number;
+  usage?: WorkflowUsageMetrics | undefined;
 }
 
 /**
@@ -191,6 +215,7 @@ export interface LlmChatExecutionResult {
   finishReason?: string | undefined;
   reason?: string | undefined;
   rawRefusal?: string | undefined;
+  usage?: LlmCallUsage | undefined;
 }
 
 /**
@@ -200,6 +225,7 @@ export interface LlmAssessmentExecutionResult {
   status: LlmChatStatus;
   data?: EvidenceAssessment | undefined;
   reason?: string | undefined;
+  usage?: LlmCallUsage | undefined;
 }
 
 /**
@@ -209,6 +235,7 @@ export interface LlmRewriteExecutionResult {
   status: LlmChatStatus;
   data?: QueryRewriteResult | undefined;
   reason?: string | undefined;
+  usage?: LlmCallUsage | undefined;
 }
 
 /**

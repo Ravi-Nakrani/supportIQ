@@ -6,6 +6,7 @@ import {
   GraphExecutionStatus,
   RawLlmAnswer,
   SourceCitation,
+  WorkflowUsageMetrics,
 } from '../services/rag/generation/types.js';
 
 /**
@@ -83,6 +84,28 @@ export const SupportIQGraphAnnotation = Annotation.Root({
   executionTimeMs: Annotation<number>({
     reducer: (_prev, next) => next,
     default: () => 0,
+  }),
+  accumulatedUsage: Annotation<WorkflowUsageMetrics>({
+    reducer: (current, update) => {
+      const embeddingTokens = current.embeddingTokens + update.embeddingTokens;
+      const promptTokens = current.promptTokens + update.promptTokens;
+      const completionTokens = current.completionTokens + update.completionTokens;
+      return {
+        embeddingTokens,
+        promptTokens,
+        completionTokens,
+        // Invariant strictly verified and maintained:
+        totalTokens: embeddingTokens + promptTokens + completionTokens,
+        isComplete: current.isComplete && update.isComplete,
+      };
+    },
+    default: () => ({
+      embeddingTokens: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      isComplete: true,
+    }),
   }),
 });
 

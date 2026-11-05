@@ -77,10 +77,23 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
     );
 
     // 6. Map LLM Failure Outcomes
+    const usage = llmResult.usage;
+    const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
+    const promptTokens = usage?.promptTokens ?? 0;
+    const completionTokens = usage?.completionTokens ?? 0;
+    const totalTokens = promptTokens + completionTokens;
+
     if (llmResult.status === 'TIMEOUT') {
       return {
         status: 'timeout',
         reason: llmResult.reason ?? 'Answer generation timed out.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -88,6 +101,13 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       return {
         status: 'aborted',
         reason: llmResult.reason ?? 'Answer generation was aborted.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -97,6 +117,13 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
         reason:
           llmResult.reason ??
           'LLM provider failed to generate structured answer.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -106,11 +133,25 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       return {
         status: 'error',
         reason: `Structured answer schema validation failed: ${validated.error.message}`,
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
     return {
       rawAnswer: validated.data,
+      accumulatedUsage: {
+        embeddingTokens: 0,
+        promptTokens,
+        completionTokens,
+        totalTokens,
+        isComplete: hasValidUsage,
+      },
     };
   };
 }

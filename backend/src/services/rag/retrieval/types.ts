@@ -41,4 +41,5 @@ export interface RetrievalResult {
   chunks: RetrievedChunk[];
   reason?: string;
   executionTimeMs: number;
+  usage?: { promptTokens: number; totalTokens: number } | undefined;
 }

@@ -73,10 +73,21 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
     });
 
     // 6. Map Outcomes
+    const usage = retrievalResult.usage;
+    const hasValidUsage = Boolean(usage && typeof usage.promptTokens === 'number');
+    const embeddingTokens = usage?.promptTokens ?? 0;
+
     if (retrievalResult.status === 'TIMEOUT') {
       return {
         status: 'timeout',
         reason: retrievalResult.reason ?? 'Retrieval timed out.',
+        accumulatedUsage: {
+          embeddingTokens,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: embeddingTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -84,6 +95,13 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       return {
         status: 'aborted',
         reason: retrievalResult.reason ?? 'Retrieval was aborted.',
+        accumulatedUsage: {
+          embeddingTokens,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: embeddingTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -91,17 +109,38 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       return {
         status: 'error',
         reason: retrievalResult.reason ?? 'Retrieval encountered an error.',
+        accumulatedUsage: {
+          embeddingTokens,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: embeddingTokens,
+          isComplete: false,
+        },
       };
     }
 
     if (retrievalResult.status === 'EMPTY_BELOW_THRESHOLD') {
       return {
         chunks: [],
+        accumulatedUsage: {
+          embeddingTokens,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: embeddingTokens,
+          isComplete: hasValidUsage,
+        },
       };
     }
 
     return {
       chunks: retrievalResult.chunks,
+      accumulatedUsage: {
+        embeddingTokens,
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: embeddingTokens,
+        isComplete: hasValidUsage,
+      },
     };
   };
 }

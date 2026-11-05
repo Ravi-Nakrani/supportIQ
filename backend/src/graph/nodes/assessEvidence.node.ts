@@ -86,10 +86,23 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
     );
 
     // 7. Map LLM Failure Outcomes
+    const usage = assessmentResult.usage;
+    const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
+    const promptTokens = usage?.promptTokens ?? 0;
+    const completionTokens = usage?.completionTokens ?? 0;
+    const totalTokens = promptTokens + completionTokens;
+
     if (assessmentResult.status === 'TIMEOUT') {
       return {
         status: 'timeout',
         reason: assessmentResult.reason ?? 'Evidence assessment timed out.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -97,6 +110,13 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       return {
         status: 'aborted',
         reason: assessmentResult.reason ?? 'Evidence assessment was aborted.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -106,6 +126,13 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
         reason:
           assessmentResult.reason ??
           'Evidence assessment failed to produce structured output.',
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
@@ -115,11 +142,25 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       return {
         status: 'error',
         reason: `Evidence assessment produced malformed data: ${validated.error.message}`,
+        accumulatedUsage: {
+          embeddingTokens: 0,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          isComplete: false,
+        },
       };
     }
 
     return {
       evidenceAssessment: validated.data,
+      accumulatedUsage: {
+        embeddingTokens: 0,
+        promptTokens,
+        completionTokens,
+        totalTokens,
+        isComplete: hasValidUsage,
+      },
     };
   };
 }
