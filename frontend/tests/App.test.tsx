@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import App from '../src/App.js';
 
 describe('App Root Component (Frontend)', () => {
-  it('should render the full accessible application shell', () => {
-    render(<App />);
+  it('should render the full accessible application shell', async () => {
+    await act(async () => {
+      render(<App />);
+    });
 
     // Header assertions
     expect(screen.getByRole('banner')).toBeInTheDocument();
@@ -18,8 +20,10 @@ describe('App Root Component (Frontend)', () => {
     ).toBeInTheDocument();
 
     // Footer assertions
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
-    expect(screen.getByText(/ShopEase is a fictional brand/i)).toBeInTheDocument();
+    const footer = screen.getByRole('contentinfo');
+    expect(footer).toBeInTheDocument();
+    expect(footer).toHaveTextContent(/ShopEase is a fictional brand/i);
+    expect(footer).toHaveTextContent(/No conversation history stored/i);
   });
 });
 

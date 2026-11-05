@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
           <strong>Notice:</strong> ShopEase is a fictional brand created for demonstration purposes. All policies and documents are synthetic.
         </p>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-          Grounded RAG architecture • Verifiable citations • Zero persistent user conversation storage
+          Grounded RAG architecture • Verifiable citations • No conversation history stored
         </p>
       </div>
     </footer>

@@ -1,14 +1,8 @@
 import React from 'react';
-import { AppShell } from './components/layout/AppShell.js';
-import { PlaceholderHero } from './components/chat/PlaceholderHero.js';
+import { ChatContainer } from './components/chat/ChatContainer.js';
 
 export const App: React.FC = () => {
-  return (
-    <AppShell>
-      <PlaceholderHero />
-    </AppShell>
-  );
+  return <ChatContainer />;
 };
 
 export default App;
-

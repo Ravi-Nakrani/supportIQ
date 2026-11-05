@@ -1,6 +1,11 @@
 import React from 'react';
 
-export const Header: React.FC = () => {
+export interface HeaderProps {
+  onNewChat?: () => void;
+  hasMessages?: boolean;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onNewChat, hasMessages = false }) => {
   return (
     <header
       role="banner"
@@ -14,6 +19,8 @@ export const Header: React.FC = () => {
         position: 'sticky',
         top: 0,
         zIndex: 10,
+        flexWrap: 'wrap',
+        gap: '0.75rem',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -57,7 +64,7 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
         <span
           style={{
             fontSize: '0.75rem',
@@ -84,6 +91,46 @@ export const Header: React.FC = () => {
         >
           No Login Required
         </span>
+
+        {onNewChat && (
+          <button
+            type="button"
+            onClick={onNewChat}
+            disabled={!hasMessages}
+            aria-label="Start a new conversation"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '0.25rem 0.625rem',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: hasMessages ? 'var(--color-brand-subtle)' : 'var(--color-bg-subtle)',
+              color: hasMessages ? 'var(--color-brand-primary)' : 'var(--color-text-muted)',
+              border: '1px solid',
+              borderColor: hasMessages ? 'var(--color-brand-border)' : 'var(--color-border-subtle)',
+              cursor: hasMessages ? 'pointer' : 'default',
+              opacity: hasMessages ? 1 : 0.6,
+              transition: 'all var(--transition-fast)',
+            }}
+            onMouseEnter={(e) => {
+              if (hasMessages) {
+                e.currentTarget.style.backgroundColor = 'var(--color-brand-primary)';
+                e.currentTarget.style.color = 'var(--color-text-inverse)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (hasMessages) {
+                e.currentTarget.style.backgroundColor = 'var(--color-brand-subtle)';
+                e.currentTarget.style.color = 'var(--color-brand-primary)';
+              }
+            }}
+          >
+            <span aria-hidden="true">↺</span>
+            <span>New Chat</span>
+          </button>
+        )}
       </div>
     </header>
   );
