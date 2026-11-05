@@ -20,6 +20,7 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(chatApi, 'getDemoMetadata').mockResolvedValue(mockDemoMetadata);
+    vi.spyOn(chatApi, 'checkBackendReadiness').mockResolvedValue(true);
   });
 
   afterEach(() => {

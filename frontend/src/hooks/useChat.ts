@@ -9,6 +9,7 @@ import type {
 import {
   sendChatMessage,
   getDemoMetadata,
+  checkBackendReadiness,
   ApiClientError,
   FALLBACK_DEMO_METADATA,
 } from '../services/chatApi.js';
@@ -26,6 +27,10 @@ export interface UseChatReturn {
   activeCitation: CitationSource | null;
   demoMetadata: DemoMetadataResponse | null;
   isMetadataLoading: boolean;
+  isBackendWarmingUp: boolean;
+  backendReadiness: 'checking' | 'ready' | 'degraded';
+  queuedMessage: string | null;
+  retryWarmUp: () => Promise<void>;
   sendMessage: (text: string) => Promise<void>;
   resetConversation: () => void;
   retryLastMessage: () => Promise<void>;
@@ -66,10 +71,19 @@ export function useChat(): UseChatReturn {
   const [demoMetadata, setDemoMetadata] = useState<DemoMetadataResponse | null>(null);
   const [isMetadataLoading, setIsMetadataLoading] = useState<boolean>(true);
 
+  // Cold-start warm-up tracking (85-second bounded probe window)
+  const [backendReadiness, setBackendReadiness] = useState<'checking' | 'ready' | 'degraded'>('checking');
+  const [queuedMessage, setQueuedMessage] = useState<string | null>(null);
+  const queuedMessageRef = useRef<string | null>(null);
+
   // Guards against stale requests and race conditions after New Chat
   const conversationGenerationRef = useRef<number>(0);
   const activeControllerRef = useRef<AbortController | null>(null);
   const lastSubmittedQueryRef = useRef<string | null>(null);
+  const messagesRef = useRef<UIMessage[]>(messages);
+  messagesRef.current = messages;
+
+  const isBackendWarmingUp = backendReadiness === 'checking';
 
   // Fetch demo metadata once on mount
   useEffect(() => {
@@ -104,6 +118,164 @@ export function useChat(): UseChatReturn {
       controller.abort();
     };
   }, []);
+
+  const executeSendMessage = useCallback(async (trimmed: string) => {
+    setError(null);
+    lastSubmittedQueryRef.current = trimmed;
+
+    // 1. Snapshot current generation and construct history from existing messages
+    const requestGeneration = conversationGenerationRef.current;
+    const historyPayload = buildBoundedHistory(messagesRef.current);
+
+    // 2. Add user question to in-memory message list
+    const userMessage: UIMessage = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      role: 'user',
+      content: trimmed,
+      timestamp: Date.now(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    // 3. Create fresh AbortController with 30s client timeout
+    const controller = new AbortController();
+    activeControllerRef.current = controller;
+
+    const timeoutId = setTimeout(() => {
+      controller.abort('CLIENT_30S_TIMEOUT');
+    }, 30000);
+
+    try {
+      const response = await sendChatMessage(
+        {
+          message: trimmed,
+          history: historyPayload.length > 0 ? historyPayload : undefined,
+        },
+        controller.signal
+      );
+
+      // Generation guard: ignore completions from older conversations
+      if (conversationGenerationRef.current !== requestGeneration) {
+        return;
+      }
+
+      const assistantMessage: UIMessage = {
+        id: `assistant-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        role: 'assistant',
+        content: response.answer,
+        timestamp: Date.now(),
+        status: response.status,
+        sources: response.sources,
+        suggestedFollowUps: response.suggestedFollowUps,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      setError(null);
+    } catch (err: unknown) {
+      if (conversationGenerationRef.current !== requestGeneration) {
+        return;
+      }
+
+      if (err instanceof Error && err.name === 'AbortError') {
+        if (controller.signal.reason === 'CLIENT_30S_TIMEOUT') {
+          setError({
+            code: 'GATEWAY_TIMEOUT',
+            message: 'The request timed out after 30 seconds. Please try asking again.',
+            canRetry: true,
+          });
+          return;
+        }
+        return;
+      }
+
+      if (err instanceof ApiClientError) {
+        if (err.code === 'REQUEST_ABORTED') {
+          setError({
+            code: 'REQUEST_ABORTED',
+            message:
+              'The request was cancelled before completion. Please try asking your question again.',
+            canRetry: true,
+          });
+        } else {
+          setError({
+            code: err.code,
+            message: err.message,
+            canRetry: err.code !== 'USAGE_LIMIT_EXCEEDED',
+          });
+        }
+        return;
+      }
+
+      setError({
+        code: 'INTERNAL_ERROR',
+        message: 'An unexpected error occurred while communicating with the assistant.',
+        canRetry: true,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+      if (
+        conversationGenerationRef.current === requestGeneration &&
+        activeControllerRef.current === controller
+      ) {
+        activeControllerRef.current = null;
+        setIsLoading(false);
+      }
+    }
+  }, []);
+
+  // Bounded warm-up probing loop (85s maximum window, 4s polling intervals)
+  const probeReadiness = useCallback(
+    async (signal: AbortSignal) => {
+      const WARM_UP_MAX_MS = 85000;
+      const PROBE_INTERVAL_MS = 4000;
+      const startTime = Date.now();
+
+      setBackendReadiness('checking');
+
+      while (Date.now() - startTime < WARM_UP_MAX_MS && !signal.aborted) {
+        try {
+          const ready = await checkBackendReadiness(signal);
+          if (ready) {
+            setBackendReadiness('ready');
+            if (queuedMessageRef.current) {
+              const queued = queuedMessageRef.current;
+              queuedMessageRef.current = null;
+              setQueuedMessage(null);
+              void executeSendMessage(queued);
+            }
+            return;
+          }
+        } catch {
+          // Probe error, continue loop
+        }
+
+        await new Promise<void>((resolve) => {
+          const timer = setTimeout(resolve, PROBE_INTERVAL_MS);
+          signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
+        });
+      }
+
+      if (!signal.aborted) {
+        setBackendReadiness('degraded');
+      }
+    },
+    [executeSendMessage]
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void probeReadiness(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
+  }, [probeReadiness]);
+
+  const retryWarmUp = useCallback(async () => {
+    const controller = new AbortController();
+    await probeReadiness(controller.signal);
+  }, [probeReadiness]);
 
   const openCitation = useCallback((citation: CitationSource) => {
     setActiveCitation(citation);
@@ -142,101 +314,16 @@ export function useChat(): UseChatReturn {
         return;
       }
 
-      setError(null);
-      lastSubmittedQueryRef.current = trimmed;
-
-      // 1. Snapshot current generation and construct history from existing messages
-      const requestGeneration = conversationGenerationRef.current;
-      const historyPayload = buildBoundedHistory(messages);
-
-      // 2. Add user question to in-memory message list
-      const userMessage: UIMessage = {
-        id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        role: 'user',
-        content: trimmed,
-        timestamp: Date.now(),
-      };
-
-      setMessages((prev) => [...prev, userMessage]);
-      setIsLoading(true);
-
-      // 3. Create fresh AbortController for this request
-      const controller = new AbortController();
-      activeControllerRef.current = controller;
-
-      try {
-        const response = await sendChatMessage(
-          {
-            message: trimmed,
-            history: historyPayload.length > 0 ? historyPayload : undefined,
-          },
-          controller.signal
-        );
-
-        // Generation guard: ignore completions from older conversations
-        if (conversationGenerationRef.current !== requestGeneration) {
-          return;
-        }
-
-        const assistantMessage: UIMessage = {
-          id: `assistant-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          role: 'assistant',
-          content: response.answer,
-          timestamp: Date.now(),
-          status: response.status,
-          sources: response.sources,
-          suggestedFollowUps: response.suggestedFollowUps,
-        };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-        setError(null);
-      } catch (err: unknown) {
-        // Generation guard: ignore errors from older conversations
-        if (conversationGenerationRef.current !== requestGeneration) {
-          return;
-        }
-
-        // Distinguish browser-side abort from backend 400 REQUEST_ABORTED
-        if (err instanceof Error && err.name === 'AbortError') {
-          // Browser-side abort caused by New Chat or component unmount; silently ignore
-          return;
-        }
-
-        if (err instanceof ApiClientError) {
-          if (err.code === 'REQUEST_ABORTED') {
-            setError({
-              code: 'REQUEST_ABORTED',
-              message:
-                'The request was cancelled before completion. Please try asking your question again.',
-              canRetry: true,
-            });
-          } else {
-            setError({
-              code: err.code,
-              message: err.message,
-              canRetry: err.code !== 'USAGE_LIMIT_EXCEEDED',
-            });
-          }
-          return;
-        }
-
-        setError({
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred while communicating with the assistant.',
-          canRetry: true,
-        });
-      } finally {
-        // Strict guard on finally cleanup: only clear if both generation AND controller identity match
-        if (
-          conversationGenerationRef.current === requestGeneration &&
-          activeControllerRef.current === controller
-        ) {
-          activeControllerRef.current = null;
-          setIsLoading(false);
-        }
+      // If backend is still warming up, queue the question
+      if (backendReadiness === 'checking') {
+        queuedMessageRef.current = trimmed;
+        setQueuedMessage(trimmed);
+        return;
       }
+
+      await executeSendMessage(trimmed);
     },
-    [isLoading, messages]
+    [backendReadiness, isLoading, executeSendMessage]
   );
 
   const retryLastMessage = useCallback(async () => {
@@ -252,6 +339,10 @@ export function useChat(): UseChatReturn {
     activeCitation,
     demoMetadata,
     isMetadataLoading,
+    isBackendWarmingUp,
+    backendReadiness,
+    queuedMessage,
+    retryWarmUp,
     sendMessage,
     resetConversation,
     retryLastMessage,
@@ -260,4 +351,3 @@ export function useChat(): UseChatReturn {
     dismissError,
   };
 }
-

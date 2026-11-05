@@ -120,6 +120,32 @@ export async function getDemoMetadata(signal?: AbortSignal): Promise<DemoMetadat
 }
 
 /**
+ * Checks backend readiness via GET /api/health?ready=true.
+ * Returns true only when status is 200 and ready is true.
+ */
+export async function checkBackendReadiness(signal?: AbortSignal): Promise<boolean> {
+  const url = `${getBaseUrl()}/health?ready=true`;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      signal,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = (await response.json()) as { status?: string; ready?: boolean };
+    return data.status === 'ok' && data.ready === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Submits a user question and history to POST /api/chat.
  */
 export async function sendChatMessage(

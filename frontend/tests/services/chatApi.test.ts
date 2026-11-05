@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getDemoMetadata,
   sendChatMessage,
+  checkBackendReadiness,
   ApiClientError,
 } from '../../src/services/chatApi.js';
 import type { ChatRequest, ChatResponse, DemoMetadataResponse } from '../../src/types/chat.js';
@@ -267,6 +268,41 @@ describe('chatApi Service (Frontend)', () => {
       globalThis.fetch = vi.fn().mockRejectedValue(abortError);
 
       await expect(sendChatMessage(request)).rejects.toThrow('The operation was aborted');
+    });
+  });
+
+  describe('checkBackendReadiness', () => {
+    it('should return true when health probe returns 200 and ready is true', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ status: 'ok', ready: true }),
+      } as unknown as Response);
+
+      const isReady = await checkBackendReadiness();
+      expect(isReady).toBe(true);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/health?ready=true', expect.objectContaining({
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      }));
+    });
+
+    it('should return false when health probe returns 503 degraded', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: async () => ({ status: 'degraded', ready: false }),
+      } as unknown as Response);
+
+      const isReady = await checkBackendReadiness();
+      expect(isReady).toBe(false);
+    });
+
+    it('should return false when health probe encounters network exception', async () => {
+      globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+
+      const isReady = await checkBackendReadiness();
+      expect(isReady).toBe(false);
     });
   });
 });

@@ -16,6 +16,7 @@ describe('useChat Hook (Frontend)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(chatApi, 'getDemoMetadata').mockResolvedValue(mockDemoMetadata);
+    vi.spyOn(chatApi, 'checkBackendReadiness').mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -411,6 +412,49 @@ describe('useChat Hook (Frontend)', () => {
         hookResult.current.closeCitation();
       });
       expect(hookResult.current.activeCitation).toBeNull();
+    });
+
+    it('should queue message when backend is warming up and auto-send upon readiness', async () => {
+      let resolveReadiness!: (value: boolean) => void;
+      const readinessPromise = new Promise<boolean>((resolve) => {
+        resolveReadiness = resolve;
+      });
+      vi.spyOn(chatApi, 'checkBackendReadiness').mockImplementation(() => readinessPromise);
+
+      const mockChatResponse: ChatResponse = {
+        status: 'answered',
+        answer: 'Policy answer.',
+        sources: [],
+      };
+      const sendSpy = vi.spyOn(chatApi, 'sendChatMessage').mockResolvedValue(mockChatResponse);
+
+      let hookResult!: { current: ReturnType<typeof useChat> };
+      await act(async () => {
+        hookResult = renderHook(() => useChat()).result;
+      });
+
+      expect(hookResult.current.isBackendWarmingUp).toBe(true);
+      expect(hookResult.current.backendReadiness).toBe('checking');
+
+      // Submit while warming up
+      await act(async () => {
+        await hookResult.current.sendMessage('Queued policy question');
+      });
+
+      expect(hookResult.current.queuedMessage).toBe('Queued policy question');
+      expect(sendSpy).not.toHaveBeenCalled();
+
+      // Backend readiness resolves
+      await act(async () => {
+        resolveReadiness(true);
+      });
+
+      expect(hookResult.current.backendReadiness).toBe('ready');
+      expect(hookResult.current.isBackendWarmingUp).toBe(false);
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Queued policy question' }),
+        expect.any(AbortSignal)
+      );
     });
   });
 });

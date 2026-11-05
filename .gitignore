@@ -38,4 +38,8 @@ Thumbs.db
 .idea/
 *.local
 
+# Markdown and Instructions
 *.md
+!README.md
+!docs/**/*.md
+!backend/knowledge-base/**/*.md
