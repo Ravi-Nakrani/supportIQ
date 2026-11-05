@@ -15,10 +15,6 @@ export interface InMemoryUsageTrackerOptions {
   getCurrentDateKey?: (() => string) | undefined;
 }
 
-/**
- * Deterministic in-memory usage tracker for offline unit/integration testing and local development.
- * Simulates the atomic conditional reservation, UTC rollover, and preserved dateKey reconciliation.
- */
 export class InMemoryUsageTracker implements IUsageTracker {
   private readonly dailyMaxRequests: number;
   private readonly dailyMaxTokens: number;
@@ -59,7 +55,6 @@ export class InMemoryUsageTracker implements IUsageTracker {
     const dateKey = this.getCurrentDateKey();
     const record = this.getOrCreateRecord(dateKey);
 
-    // Hard-cap condition: current usage + reservation <= limit
     if (record.requestCount + this.reservedRequests > this.dailyMaxRequests) {
       return {
         allowed: false,
@@ -93,7 +88,6 @@ export class InMemoryUsageTracker implements IUsageTracker {
       };
     }
 
-    // Atomic reservation increment
     record.requestCount += this.reservedRequests;
     record.totalTokens += this.reservedTokens;
     record.estimatedCostMicroUsd += this.reservedCostMicroUsd;
@@ -111,7 +105,6 @@ export class InMemoryUsageTracker implements IUsageTracker {
     const record = this.records.get(params.dateKey);
     if (!record) return;
 
-    // Fail closed on unverified/incomplete usage: retain the reservation in full
     if (
       !params.isComplete ||
       params.actualTokens === undefined ||
@@ -120,7 +113,6 @@ export class InMemoryUsageTracker implements IUsageTracker {
       return;
     }
 
-    // Release unneeded reserved tokens and cost (deltas are non-positive)
     const deltaTokens = Math.min(0, params.actualTokens - params.reservedTokens);
     const deltaCost = Math.min(0, params.actualCostMicroUsd - params.reservedCostMicroUsd);
 

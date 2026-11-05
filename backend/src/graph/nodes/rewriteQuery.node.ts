@@ -14,28 +14,15 @@ export interface RewriteQueryNodeDependencies {
   masterDeadlineMs?: number | undefined;
 }
 
-/**
- * Node: rewriteQuery
- *
- * Reformulates the search query when initial retrieval evidence is insufficient or empty.
- *
- * Defensive Guarantees:
- * 1. Strict Schema Validation: Rewritten query must be trimmed, non-empty, and <= 1000 characters.
- * 2. Unhandled/Invalid Protection: If rewriting produces invalid output, sets status: 'error'.
- *    The downstream retrieveDocuments guard prevents any subsequent retrieval.
- * 3. Bounded Iteration: Unconditionally increments retryCount.
- */
 export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
   return async function rewriteQuery(
     state: SupportIQGraphState,
     config?: RunnableConfig
   ): Promise<Partial<SupportIQGraphState>> {
-    // 1. Early Terminal Guard
     if (state.status !== 'pending') {
       return state;
     }
 
-    // 2. Cancellation Check
     if (config?.signal?.aborted) {
       return {
         retryCount: state.retryCount + 1,
@@ -46,7 +33,6 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
       };
     }
 
-    // 3. Dynamic Timeout Budget Calculation
     const budget = calculateRemainingBudget(
       state,
       REWRITE_QUERY_STANDARD_TIMEOUT_MS,
@@ -61,14 +47,12 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
       };
     }
 
-    // 4. Build Rewrite Prompt
     const prompt = buildQueryRewritePrompt({
       question: state.question,
       history: state.history,
       assessmentReason: state.evidenceAssessment?.reason,
     });
 
-    // 5. Invoke LLM Query Reformulation
     const rewriteResult = await deps.llmChatService.rewriteQuery(
       prompt.messages,
       {
@@ -77,7 +61,6 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
       }
     );
 
-    // 6. Map LLM Failure Outcomes
     const usage = rewriteResult.usage;
     const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
     const promptTokens = usage?.promptTokens ?? 0;
@@ -131,7 +114,6 @@ export function createRewriteQueryNode(deps: RewriteQueryNodeDependencies) {
       };
     }
 
-    // 7. Strict Zod Validation Check (trimmed, non-empty, <= 1000 chars)
     const validated = queryRewriteSchema.safeParse(rewriteResult.data);
     if (!validated.success) {
       return {

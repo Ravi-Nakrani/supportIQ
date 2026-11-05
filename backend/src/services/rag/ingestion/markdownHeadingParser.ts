@@ -4,16 +4,6 @@ export interface MarkdownSection {
   content: string;
 }
 
-/**
- * Lightweight, deterministic, code-fence-aware Markdown heading parser.
- *
- * Extracts H1, H2, and H3 sections while respecting code fences (``` and ~~~)
- * with strict matching fence markers.
- *
- * @param markdown Body content of the markdown document (without frontmatter).
- * @param defaultTitle Fallback document title if no H1 is defined.
- * @returns Array of structured MarkdownSection objects.
- */
 export function parseMarkdownHeadings(markdown: string, defaultTitle: string = 'Document'): MarkdownSection[] {
   const normalized = markdown.replace(/\r\n/g, '\n');
   const lines = normalized.split('\n');
@@ -49,7 +39,6 @@ export function parseMarkdownHeadings(markdown: string, defaultTitle: string = '
     if (rawLine === undefined) continue;
     const trimmedLine = rawLine.trim();
 
-    // Check code fence state
     if (!inCodeFence) {
       const fenceMatch = trimmedLine.match(/^(`{3,}|~{3,})/);
       if (fenceMatch && fenceMatch[1]) {
@@ -60,7 +49,6 @@ export function parseMarkdownHeadings(markdown: string, defaultTitle: string = '
         continue;
       }
     } else {
-      // Inside code fence: only a matching fence marker of equal or greater length can close it
       const escapedChar = activeFenceChar === '`' ? '`' : '~';
       const closingRegex = new RegExp(`^${escapedChar}{${activeFenceLength},}\\s*$`);
       if (closingRegex.test(trimmedLine)) {
@@ -72,14 +60,11 @@ export function parseMarkdownHeadings(markdown: string, defaultTitle: string = '
       continue;
     }
 
-    // Check for Markdown headings (only outside code fences)
     const headingMatch = trimmedLine.match(/^(#{1,3})\s+(.*)$/);
     if (headingMatch && headingMatch[1] && headingMatch[2]) {
       const level = headingMatch[1].length;
-      // Clean heading text (strip trailing '#' if present)
       const headingText = headingMatch[2].replace(/\s+#+\s*$/, '').trim();
 
-      // Flush previous section's content before transitioning heading
       flushCurrentSection();
 
       if (level === 1) {
@@ -93,15 +78,12 @@ export function parseMarkdownHeadings(markdown: string, defaultTitle: string = '
         currentH3 = headingText;
       }
 
-      // Do not add the heading line itself to contentLines; it is preserved as metadata
       continue;
     }
 
-    // Normal content line
     currentContentLines.push(rawLine);
   }
 
-  // Flush remaining content
   flushCurrentSection();
 
   return sections;

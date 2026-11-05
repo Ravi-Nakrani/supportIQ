@@ -41,9 +41,6 @@ const getBaseUrl = (): string => {
   return '/api';
 };
 
-/**
- * Parses response error body into a typed ApiClientError.
- */
 async function parseErrorResponse(response: Response): Promise<ApiClientError> {
   const status = response.status;
   try {
@@ -57,10 +54,8 @@ async function parseErrorResponse(response: Response): Promise<ApiClientError> {
       );
     }
   } catch {
-    // Response was not JSON
   }
 
-  // Fallback messages when response body is not structured JSON
   let fallbackCode: ApiErrorCode = 'INTERNAL_ERROR';
   let fallbackMessage = 'An unexpected server error occurred.';
 
@@ -85,9 +80,6 @@ async function parseErrorResponse(response: Response): Promise<ApiClientError> {
   return new ApiClientError(fallbackMessage, status, fallbackCode);
 }
 
-/**
- * Fetches demo branding metadata and suggested starter questions from GET /api/demo.
- */
 export async function getDemoMetadata(signal?: AbortSignal): Promise<DemoMetadataResponse> {
   const url = `${getBaseUrl()}/demo`;
   try {
@@ -119,10 +111,6 @@ export async function getDemoMetadata(signal?: AbortSignal): Promise<DemoMetadat
   }
 }
 
-/**
- * Checks backend readiness via GET /api/health?ready=true.
- * Returns true only when status is 200 and ready is true.
- */
 export async function checkBackendReadiness(signal?: AbortSignal): Promise<boolean> {
   const url = `${getBaseUrl()}/health?ready=true`;
   try {
@@ -145,9 +133,6 @@ export async function checkBackendReadiness(signal?: AbortSignal): Promise<boole
   }
 }
 
-/**
- * Submits a user question and history to POST /api/chat.
- */
 export async function sendChatMessage(
   request: ChatRequest,
   signal?: AbortSignal

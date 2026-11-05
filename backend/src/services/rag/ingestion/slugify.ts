@@ -1,9 +1,3 @@
-/**
- * Converts any section heading string into a deterministic, URL/ID-safe slug.
- *
- * @param text The heading text to convert.
- * @returns Kebab-cased slug string.
- */
 export function slugify(text: string): string {
   const trimmed = text.trim();
   if (!trimmed) {
@@ -12,10 +6,10 @@ export function slugify(text: string): string {
 
   return trimmed
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')     // Remove non-alphanumeric chars except space and hyphen
-    .replace(/\s+/g, '-')        // Replace spaces with hyphens
-    .replace(/-+/g, '-')         // Consolidate consecutive hyphens
-    .replace(/^-+|-+$/g, '')     // Trim leading/trailing hyphens
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
     || 'section';
 }
 

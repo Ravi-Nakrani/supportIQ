@@ -33,7 +33,6 @@ describe('Graph Structured Schema Validation & Rewrite Protection (Unit)', () =>
       executionTimeMs: 15,
     });
 
-    // Provide malformed assessment output (missing isSufficient boolean)
     mockLlmService.enqueueAssessmentResponse({
       status: 'SUCCESS',
       data: {
@@ -62,8 +61,6 @@ describe('Graph Structured Schema Validation & Rewrite Protection (Unit)', () =>
       executionTimeMs: 10,
     });
 
-    // Assessment short-circuits to insufficient, triggering query rewrite
-    // Rewrite produces invalid empty string
     mockLlmService.enqueueRewriteResponse({
       status: 'SUCCESS',
       data: {
@@ -115,14 +112,12 @@ describe('Graph Structured Schema Validation & Rewrite Protection (Unit)', () =>
   });
 
   it('proves that a rewrite-node error does NOT invoke retrieval again', async () => {
-    // Initial retrieval returns 0 chunks
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'EMPTY_BELOW_THRESHOLD',
       chunks: [],
       executionTimeMs: 10,
     });
 
-    // Rewrite fails with an error
     mockLlmService.enqueueRewriteResponse({
       status: 'ERROR',
       reason: 'Model failed to generate structured rewrite.',
@@ -138,8 +133,6 @@ describe('Graph Structured Schema Validation & Rewrite Protection (Unit)', () =>
     });
 
     expect(result.status).toBe('error');
-    // Critical: retrieveChunks must have been called EXACTLY ONCE for initial retrieval,
-    // and MUST NOT have been called a second time after rewrite failed
     expect(mockRetrievalService.retrieveChunks).toHaveBeenCalledTimes(1);
   });
 });

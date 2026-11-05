@@ -7,10 +7,6 @@ export interface ChatRouterDependencies {
   concurrencyLimiter: RequestHandler;
 }
 
-/**
- * Creates the chat router with early IP rate limiting, concurrency semaphores,
- * and the chat execution controller.
- */
 export function createChatRouter(deps: ChatRouterDependencies): Router {
   const router = Router();
 

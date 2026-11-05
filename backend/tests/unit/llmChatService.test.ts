@@ -24,11 +24,9 @@ describe('LLM Chat Service & Structured Outputs (Unit)', () => {
       expect(required).toContain('suggestedFollowUps');
 
       const properties = schema.properties as Record<string, any>;
-      // Follow-up array constraints
       expect(properties.suggestedFollowUps.type).toBe('array');
       expect(properties.suggestedFollowUps.maxItems).toBe(3);
 
-      // Citations array constraints
       expect(properties.citations.type).toBe('array');
       expect(properties.citations.items.type).toBe('object');
       expect(properties.citations.items.additionalProperties).toBe(false);

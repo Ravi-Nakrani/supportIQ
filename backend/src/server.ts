@@ -19,7 +19,6 @@ import { MongoReadinessChecker } from './services/health/readinessChecker.js';
 const isProduction = env.NODE_ENV === 'production';
 const isLiveMode = Boolean(env.OPENAI_API_KEY);
 
-// 1. Strict Startup Guard: Require both MONGODB_URI and OPENAI_API_KEY in production; fail closed.
 if (isProduction) {
   if (!env.MONGODB_URI) {
     console.error(
@@ -40,7 +39,6 @@ if (isProduction) {
   process.exit(1);
 }
 
-// 2. Compute dynamic worst-case reservation cost based on verified model pricing
 const reservedCostMicroUsd = calculateWorstCaseReservationCost(
   env.OPENAI_CHAT_MODEL,
   env.OPENAI_EMBEDDING_MODEL
@@ -50,7 +48,6 @@ console.log(
   `[SERVER] Cost guard initialized: model="${env.OPENAI_CHAT_MODEL}", reservationCost=${reservedCostMicroUsd} μUSD ($${(reservedCostMicroUsd / 1000000).toFixed(6)}), reservationTokens=14100`
 );
 
-// 3. Connect shared MongoClient pool
 let mongoClient: MongoClient | undefined;
 if (env.MONGODB_URI) {
   try {
@@ -66,7 +63,6 @@ if (env.MONGODB_URI) {
   }
 }
 
-// 4. Construct production dependencies sharing the mongoClient pool
 const currentVectorConfig = getVectorConfig();
 const currentLlmConfig = getLlmConfig();
 
@@ -114,7 +110,6 @@ const usageTracker = mongoClient
       reservedRequests: 1,
     });
 
-// 5. Enforce Mock Prohibition in Production: Production cannot silently instantiate mock adapters
 if (isProduction) {
   if (
     vectorStore instanceof InMemoryVectorStore ||
@@ -129,7 +124,6 @@ if (isProduction) {
   }
 }
 
-// 6. Instantiate Readiness Checker for GET /api/health?ready=true
 const readinessChecker = mongoClient
   ? new MongoReadinessChecker({
       client: mongoClient,
@@ -140,16 +134,12 @@ const readinessChecker = mongoClient
     })
   : undefined;
 
-// 7. Instantiate Express application with injected dependencies
 const app = createApp({
   graphService,
   usageTracker,
   readinessChecker,
 });
 
-/**
- * Starts the HTTP server listener and configures lifecycle listeners.
- */
 const server = app.listen(env.PORT, () => {
   console.log(`[SERVER] SupportIQ API server listening on port ${env.PORT} in '${env.NODE_ENV}' mode`);
   console.log(`[SERVER] Health check ready at http://localhost:${env.PORT}/api/health`);
@@ -157,9 +147,6 @@ const server = app.listen(env.PORT, () => {
   console.log(`[SERVER] Chat endpoint ready at http://localhost:${env.PORT}/api/chat`);
 });
 
-/**
- * Handles graceful process termination.
- */
 function handleShutdown(signal: string): void {
   console.log(`[SERVER] Received ${signal}. Closing HTTP listener gracefully...`);
 
@@ -179,7 +166,6 @@ function handleShutdown(signal: string): void {
     process.exit(err ? 1 : 0);
   });
 
-  // Force close if connections fail to drain within 10 seconds
   const forceTimer = setTimeout(() => {
     console.error('[SERVER] Forcefully terminating process after 10s shutdown timeout.');
     process.exit(1);

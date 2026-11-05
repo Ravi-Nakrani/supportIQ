@@ -2,19 +2,10 @@ import dotenv from 'dotenv';
 import { z } from 'zod';
 import { assertSupportedModels } from './llmPricing.js';
 
-// Load variables from .env file into process.env if present
 dotenv.config();
 
-/**
- * Valid environment stages for the backend runtime.
- */
 export const NODE_ENVS = ['development', 'test', 'production'] as const;
 
-/**
- * Zod schema validating backend environment variables.
- * In Phase 1A, only core server runtime variables are required.
- * Additional integrations (MongoDB, OpenAI) will be added in their respective phases.
- */
 export const envSchema = z.object({
   NODE_ENV: z.enum(NODE_ENVS).default('development'),
   PORT: z.coerce
@@ -28,13 +19,11 @@ export const envSchema = z.object({
     .url('FRONTEND_ORIGIN must be a valid URL')
     .default('http://localhost:5173'),
 
-  // Phase 3: MongoDB Atlas Vector Search
   MONGODB_URI: z.string().trim().min(1, 'MONGODB_URI must not be empty').optional(),
   MONGODB_DB_NAME: z.string().trim().min(1).default('supportiq'),
   MONGODB_VECTOR_COLLECTION: z.string().trim().min(1).default('knowledge_chunks'),
   MONGODB_VECTOR_INDEX_NAME: z.string().trim().min(1).default('supportiq_vector_index'),
 
-  // Phase 3: OpenAI Embeddings
   OPENAI_API_KEY: z.string().trim().min(1, 'OPENAI_API_KEY must not be empty').optional(),
   OPENAI_EMBEDDING_MODEL: z.string().trim().min(1).default('text-embedding-3-small'),
   OPENAI_EMBEDDING_DIMENSIONS: z.coerce
@@ -43,7 +32,6 @@ export const envSchema = z.object({
     .positive('OPENAI_EMBEDDING_DIMENSIONS must be positive')
     .default(1536),
 
-  // Phase 3: Retrieval Bounds & Thresholds
   RETRIEVAL_DEFAULT_TOP_K: z.coerce
     .number()
     .int('RETRIEVAL_DEFAULT_TOP_K must be an integer')
@@ -62,7 +50,6 @@ export const envSchema = z.object({
     .max(60000, 'RETRIEVAL_TIMEOUT_MS must be at most 60000ms')
     .default(2500),
 
-  // Phase 4: OpenAI Chat & Answer Generation
   OPENAI_CHAT_MODEL: z.string().trim().min(1, 'OPENAI_CHAT_MODEL must not be empty').default('gpt-6-luna'),
   LLM_TEMPERATURE: z.coerce
     .number()
@@ -89,7 +76,6 @@ export const envSchema = z.object({
     .max(3, 'LLM_MAX_RETRIES must be at most 3')
     .default(1),
 
-  // Phase 6: Ingress Limits & Throttling
   MAX_MESSAGE_CHARS: z.coerce
     .number()
     .int('MAX_MESSAGE_CHARS must be an integer')
@@ -115,7 +101,6 @@ export const envSchema = z.object({
     .max(1000, 'RATE_LIMIT_MAX_REQUESTS must be at most 1000')
     .default(10),
 
-  // Phase 6: Persistent Daily Hard-Cap Budget
   DAILY_MAX_REQUESTS: z.coerce
     .number()
     .int('DAILY_MAX_REQUESTS must be an integer')
@@ -130,7 +115,7 @@ export const envSchema = z.object({
     .number()
     .int('DAILY_MAX_BUDGET_MICRO_USD must be an integer')
     .min(10000, 'DAILY_MAX_BUDGET_MICRO_USD must be at least 10000 μUSD ($0.01)')
-    .default(5000000), // $5.00 USD in integer micro-dollars
+    .default(5000000),
   CHAT_CONCURRENCY_LIMIT: z.coerce
     .number()
     .int('CHAT_CONCURRENCY_LIMIT must be an integer')
@@ -149,10 +134,6 @@ export interface ValidateEnvOptions {
   exitOnError?: boolean;
 }
 
-/**
- * Validates environment variables against envSchema.
- * Formats validation issues clearly without leaking sensitive values.
- */
 export function validateEnv(
   rawEnv: Record<string, string | undefined> = process.env,
   options: ValidateEnvOptions = { exitOnError: true }
@@ -173,7 +154,6 @@ export function validateEnv(
     throw new Error(`Invalid environment configuration:\n${errorDetails}`);
   }
 
-  // Phase 6: Fail closed at startup if configured models are deprecated or unverified
   try {
     assertSupportedModels(result.data.OPENAI_CHAT_MODEL, result.data.OPENAI_EMBEDDING_MODEL);
   } catch (err: unknown) {
@@ -188,8 +168,4 @@ export function validateEnv(
   return Object.freeze(result.data);
 }
 
-/**
- * Active application environment configuration.
- * Validated at startup; immutable throughout runtime.
- */
 export const env: Env = validateEnv(process.env);

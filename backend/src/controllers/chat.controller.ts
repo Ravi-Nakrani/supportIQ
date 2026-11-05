@@ -27,7 +27,6 @@ export class ChatController {
   }
 
   async handleChat(req: Request, res: Response, next: NextFunction): Promise<void> {
-    // 1. Zod Request Body Validation
     const parseResult = chatRequestSchema.safeParse(req.body);
     if (!parseResult.success) {
       const issueDetails = parseResult.error.issues
@@ -44,12 +43,10 @@ export class ChatController {
 
     const { message, history } = parseResult.data;
 
-    // 2. Pre-Call Budget Hard-Cap Reservation (Fail Closed on DB Outage)
     let reservation: UsageReservation;
     try {
       reservation = await this.usageTracker.checkAndReserve();
     } catch (trackerErr: unknown) {
-      // Fail closed: database connection failure or pricing resolution error
       console.error('[CHAT ERROR] Usage tracker reservation failure (failing closed):', trackerErr);
       res.status(503).json({
         error: {
@@ -71,12 +68,10 @@ export class ChatController {
       return;
     }
 
-    // 3. Setup Response Socket Disconnect & Master Request Deadline Controllers
     const clientAbortController = new AbortController();
     const serverTimeoutController = new AbortController();
     let timeoutTimer: NodeJS.Timeout | undefined;
 
-    // Detect client socket closure before response has ended
     const onSocketClose = () => {
       if (!res.writableEnded) {
         clientAbortController.abort('CLIENT_DISCONNECTED');
@@ -84,12 +79,10 @@ export class ChatController {
     };
     res.once('close', onSocketClose);
 
-    // Account for incomplete or aborted incoming request stream
     if (req.aborted || (req.destroyed && !req.complete)) {
       clientAbortController.abort('REQUEST_STREAM_INCOMPLETE');
     }
 
-    // Combined cancellation signal
     const combinedSignal = AbortSignal.any([
       serverTimeoutController.signal,
       clientAbortController.signal,
@@ -100,7 +93,6 @@ export class ChatController {
         serverTimeoutController.abort('REQUEST_DEADLINE_EXCEEDED');
       }, CHAT_REQUEST_DEADLINE_MS);
 
-      // 4. Execute LangGraph RAG Workflow
       const result = await this.graphService.execute({
         question: message,
         history,
@@ -108,7 +100,6 @@ export class ChatController {
         timeoutMs: CHAT_REQUEST_DEADLINE_MS,
       });
 
-      // 5. Post-Call Usage Reconciliation (Against Preserved Reservation dateKey)
       const isTerminalSuccess =
         result.status === 'answered' || result.status === 'insufficient_evidence';
       const hasCompleteUsage =
@@ -136,7 +127,6 @@ export class ChatController {
           console.error('[CHAT ERROR] Reconciliation error (reservation retained):', reconcileErr);
         }
       } else {
-        // Retain full reservation on failure, abort, timeout, or missing usage
         try {
           await this.usageTracker.reconcileUsage({
             dateKey: reservation.dateKey,
@@ -149,8 +139,6 @@ export class ChatController {
         }
       }
 
-      // 6. Safe Response Dispatch
-      // If client has disconnected or socket was severed, DO NOT attempt to write
       if (
         res.writableEnded ||
         res.destroyed ||
@@ -191,7 +179,6 @@ export class ChatController {
       }
 
       if (result.status === 'aborted') {
-        // Socket is confirmed still open, but workflow was aborted internally
         res.status(400).json({
           error: {
             code: 'REQUEST_ABORTED',
@@ -201,7 +188,6 @@ export class ChatController {
         return;
       }
 
-      // Default error outcome
       res.status(500).json({
         error: {
           code: 'INTERNAL_ERROR',

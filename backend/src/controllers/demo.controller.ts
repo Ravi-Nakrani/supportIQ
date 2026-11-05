@@ -13,9 +13,6 @@ export const DEMO_METADATA = {
   ],
 };
 
-/**
- * Serves public branding and curated starter questions for the landing page.
- */
 export function getDemoMetadata(_req: Request, res: Response): void {
   res.status(200).json(DEMO_METADATA);
 }

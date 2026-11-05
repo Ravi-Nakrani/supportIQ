@@ -9,10 +9,6 @@ export interface RetrievalServiceDependencies {
   config: VectorConfig;
 }
 
-/**
- * Core retrieval service implementing bounded top-k semantic retrieval,
- * unified deadline management, minimum score threshold filtering, and citation metadata preservation.
- */
 export class RetrievalService {
   private readonly vectorStore: IVectorStore;
   private readonly embeddingService: IEmbeddingService;
@@ -24,17 +20,12 @@ export class RetrievalService {
     this.config = dependencies.config;
   }
 
-  /**
-   * Retrieves relevant knowledge base chunks for a user question.
-   * Enforces a single master deadline (default 2500ms) across embedding and search operations.
-   */
   async retrieveChunks(
     query: string,
     options: RetrievalOptions = {}
   ): Promise<RetrievalResult> {
     const startTime = Date.now();
 
-    // 1. Immediate pre-aborted external signal check
     if (options.signal?.aborted) {
       return {
         status: 'ABORTED',
@@ -46,7 +37,6 @@ export class RetrievalService {
       };
     }
 
-    // 2. Validate query input
     if (!query || query.trim().length === 0) {
       return {
         status: 'ERROR',
@@ -56,13 +46,11 @@ export class RetrievalService {
       };
     }
 
-    // 3. Validate runtime topK and minScore parameters within bounded limits
     const topK = Math.max(1, Math.min(10, options.topK ?? this.config.retrievalDefaultTopK));
     const minScore = Math.max(0, Math.min(1, options.minScore ?? this.config.retrievalMinScore));
     const timeoutMs = options.timeoutMs ?? this.config.retrievalTimeoutMs;
     const deadline = startTime + timeoutMs;
 
-    // 4. Initialize master deadline controller and cancellation tracking
     const controller = new AbortController();
     let isDeadlineTimeout = false;
     let isExternalAbort = false;
@@ -82,7 +70,6 @@ export class RetrievalService {
     }
 
     try {
-      // 5. Step 1: Embed Query (interactive zero-retries)
       const embeddingTimeout = Math.max(1, deadline - Date.now());
       const queryVector = await this.embeddingService.embedQuery(query, {
         signal: controller.signal,
@@ -94,7 +81,6 @@ export class RetrievalService {
         ? this.embeddingService.getLastUsage()
         : undefined;
 
-      // 6. Mid-flight checkpoint after embedding
       if (isExternalAbort || options.signal?.aborted) {
         return {
           status: 'ABORTED',
@@ -112,7 +98,6 @@ export class RetrievalService {
         };
       }
 
-      // 7. Step 2: Database Vector Search
       const remainingMs = deadline - Date.now();
       const searchOptions: {
         topK: number;
@@ -131,7 +116,6 @@ export class RetrievalService {
       }
       const searchResults = await this.vectorStore.search(queryVector, searchOptions);
 
-      // 8. Post-search checkpoint: A late database result MUST NOT be returned as SUCCESS
       if (isExternalAbort || options.signal?.aborted) {
         return {
           status: 'ABORTED',
@@ -149,7 +133,6 @@ export class RetrievalService {
         };
       }
 
-      // 9. Map and filter results by minimum similarity score
       const chunks: RetrievedChunk[] = [];
       for (const res of searchResults) {
         if (res.score >= minScore) {
@@ -210,7 +193,6 @@ export class RetrievalService {
         executionTimeMs,
       };
     } finally {
-      // 10. Clean up timer and event listener unconditionally
       clearTimeout(timeoutId);
       if (options.signal) {
         options.signal.removeEventListener('abort', onExternalAbort);

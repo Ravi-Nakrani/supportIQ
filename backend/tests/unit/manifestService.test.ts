@@ -99,7 +99,6 @@ describe('Manifest Service (Unit)', () => {
       const originalChunk = createSampleChunk('chunk-1', 'Same Text', 'Returns');
       const metadataUpdatedChunk = createSampleChunk('chunk-1', 'Same Text', 'Returns & Exchanges');
 
-      // Ensure content hashes match but metadata hashes differ
       expect(originalChunk.metadata.contentHash).toBe(metadataUpdatedChunk.metadata.contentHash);
       expect(originalChunk.metadata.metadataHash).not.toBe(
         metadataUpdatedChunk.metadata.metadataHash
@@ -134,7 +133,6 @@ describe('Manifest Service (Unit)', () => {
         chunks: [activeChunk, staleChunk],
       };
 
-      // Only chunk-1 is presented in new run
       const report = compareChunksWithManifest([activeChunk], existingManifest);
 
       expect(report.unchanged).toHaveLength(1);
@@ -178,7 +176,6 @@ describe('Manifest Service (Unit)', () => {
         existingManifest
       );
 
-      // Must retain exact previous generatedAt
       expect(result.generatedAt).toBe('2026-01-01T12:00:00.000Z');
 
       await rm(tempManifestPath, { force: true });

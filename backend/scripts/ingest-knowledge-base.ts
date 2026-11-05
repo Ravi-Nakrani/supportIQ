@@ -31,7 +31,6 @@ async function main(): Promise<void> {
   const startTime = Date.now();
 
   try {
-    // 1. Run file-to-manifest pipeline
     const result = await runIngestionPipeline(knowledgeBaseDir, manifestPath, {
       baseDir: backendRoot,
     });
@@ -48,7 +47,6 @@ async function main(): Promise<void> {
     console.log(`  - Manifest Status : ${result.summary.isIdempotent ? 'UNCHANGED (No file mutations)' : 'UPDATED'}`);
     console.log(`  - Pipeline Time   : ${elapsed}ms\n`);
 
-    // 2. Vector Sync (Strictly opt-in via --sync-vectors)
     if (!syncVectorsRequested) {
       console.log('-----------------------------------------------------------------');
       console.log('Notice: Vector sync was not requested.');

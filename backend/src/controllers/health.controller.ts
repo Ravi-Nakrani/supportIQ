@@ -1,10 +1,6 @@
 import type { Request, Response } from 'express';
 import type { IReadinessChecker } from '../services/health/readinessChecker.js';
 
-/**
- * Health check response payload contract.
- * Strictly adheres to docs/API_CONTRACTS.md (Section 2.1).
- */
 export interface HealthResponse {
   status: 'ok' | 'degraded';
   ready?: boolean | undefined;
@@ -12,9 +8,6 @@ export interface HealthResponse {
   version: string;
 }
 
-/**
- * Health controller managing liveness and dependency readiness probes.
- */
 export class HealthController {
   private readonly readinessChecker: IReadinessChecker | undefined;
 
@@ -22,17 +15,9 @@ export class HealthController {
     this.readinessChecker = readinessChecker;
   }
 
-  /**
-   * GET /api/health
-   * Default: Lightweight liveness probe returning 200 OK without DB calls.
-   * With ?ready=true: Deep readiness probe verifying MongoDB cluster ping,
-   * Vector Search index presence ('READY' and queryable), manifest chunk counts,
-   * and usage tracking accessibility.
-   */
   getHealth = async (req: Request, res: Response<HealthResponse>): Promise<void> => {
     const isReadinessRequested = req.query.ready === 'true' || req.query.ready === '1';
 
-    // 1. Lightweight Liveness Probe
     if (!isReadinessRequested) {
       res.status(200).json({
         status: 'ok',
@@ -42,9 +27,7 @@ export class HealthController {
       return;
     }
 
-    // 2. Readiness Probe
     if (!this.readinessChecker) {
-      // In offline tests or when no readiness checker is injected
       res.status(200).json({
         status: 'ok',
         ready: true,

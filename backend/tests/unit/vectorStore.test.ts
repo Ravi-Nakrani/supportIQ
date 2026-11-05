@@ -59,7 +59,6 @@ describe('Vector Store (Unit)', () => {
     expect(result.modifiedCount).toBe(0);
     expect(store.size()).toBe(2);
 
-    // Re-upserting doc1 with updated text
     const updatedDoc1 = { ...sampleDoc1, text: 'Updated text' };
     const reResult = await store.bulkUpsert([updatedDoc1]);
 
@@ -73,7 +72,6 @@ describe('Vector Store (Unit)', () => {
     const store = new InMemoryVectorStore();
     await store.bulkUpsert([sampleDoc1, sampleDoc2]);
 
-    // Query vector aligned with doc1 [1.0, 0.0, 0.0]
     const query = [0.95, 0.05, 0.0];
     const results = await store.search(query, { topK: 2 });
 
@@ -87,11 +85,9 @@ describe('Vector Store (Unit)', () => {
     const store = new InMemoryVectorStore();
     await store.bulkUpsert([sampleDoc1, sampleDoc2]);
 
-    // Query orthogonal to doc2
     const query = [1.0, 0.0, 0.0];
     const results = await store.search(query, { topK: 5, minScore: 0.5 });
 
-    // Only doc1 has score 1.0; doc2 has score 0.0
     expect(results).toHaveLength(1);
     expect(results[0]!.id).toBe(sampleDoc1.id);
   });
@@ -114,7 +110,6 @@ describe('Vector Store (Unit)', () => {
     const stored = store.getRawDocument(sampleDoc1.id);
     expect(stored?.metadata.sectionTitle).toBe('Updated Section Title');
     expect(stored?.metadata.metadataHash).toBe('new-meta-hash');
-    // Ensure embedding is strictly preserved
     expect(stored?.embedding).toEqual(sampleDoc1.embedding);
   });
 

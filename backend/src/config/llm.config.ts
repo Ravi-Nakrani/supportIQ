@@ -1,8 +1,5 @@
 import { Env, env as defaultEnv } from './env.js';
 
-/**
- * Validated LLM and answer generation configuration structure.
- */
 export interface LlmConfig {
   openAiApiKey?: string | undefined;
   chatModel: string;
@@ -13,12 +10,6 @@ export interface LlmConfig {
   maxRetries: number;
 }
 
-/**
- * Resolves the LLM configuration from the validated environment.
- *
- * @param activeEnv Validated application environment (defaults to singleton `env`).
- * @returns Immutable LlmConfig object.
- */
 export function getLlmConfig(activeEnv: Env = defaultEnv): Readonly<LlmConfig> {
   return Object.freeze({
     openAiApiKey: activeEnv.OPENAI_API_KEY,
@@ -31,10 +22,6 @@ export function getLlmConfig(activeEnv: Env = defaultEnv): Readonly<LlmConfig> {
   });
 }
 
-/**
- * Asserts that the OpenAI API key is configured for live LLM operations.
- * Throws a descriptive configuration error if missing.
- */
 export function assertLlmConfig(
   config: LlmConfig
 ): asserts config is LlmConfig & { openAiApiKey: string } {

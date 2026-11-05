@@ -50,11 +50,9 @@ describe('Vector Sync Service (Unit)', () => {
     const store = new InMemoryVectorStore();
     const embeddingService = new MockEmbeddingService();
 
-    // First run
     await syncVectors([chunk1, chunk2], store, embeddingService);
     embeddingService.totalDocumentsEmbedded = 0;
 
-    // Second run
     const report = await syncVectors([chunk1, chunk2], store, embeddingService);
 
     expect(report.totalManifestChunks).toBe(2);
@@ -64,18 +62,16 @@ describe('Vector Sync Service (Unit)', () => {
     expect(report.staleDeleted).toBe(0);
     expect(report.unchanged).toBe(2);
     expect(report.isFullySynced).toBe(true);
-    expect(embeddingService.totalDocumentsEmbedded).toBe(0); // 0 embedding calls
+    expect(embeddingService.totalDocumentsEmbedded).toBe(0);
   });
 
   it('should prune stale vectors when a chunk is removed from the manifest', async () => {
     const store = new InMemoryVectorStore();
     const embeddingService = new MockEmbeddingService();
 
-    // Seed store with chunk1, chunk2, chunk3
     await syncVectors([chunk1, chunk2, chunk3], store, embeddingService);
     expect(store.size()).toBe(3);
 
-    // Sync manifest containing only chunk1 and chunk2
     const report = await syncVectors([chunk1, chunk2], store, embeddingService);
 
     expect(report.staleDeleted).toBe(1);
@@ -88,12 +84,10 @@ describe('Vector Sync Service (Unit)', () => {
     const store = new InMemoryVectorStore();
     const embeddingService = new MockEmbeddingService();
 
-    // Simulate partial failure: sync chunk1 and chunk2 first (simulating batch 1 succeeded before crash)
     await syncVectors([chunk1, chunk2], store, embeddingService);
     expect(store.size()).toBe(2);
     embeddingService.totalDocumentsEmbedded = 0;
 
-    // Retry with complete manifest [chunk1, chunk2, chunk3]
     const retryReport = await syncVectors(
       [chunk1, chunk2, chunk3],
       store,
@@ -101,9 +95,9 @@ describe('Vector Sync Service (Unit)', () => {
     );
 
     expect(retryReport.totalManifestChunks).toBe(3);
-    expect(retryReport.added).toBe(1); // Only chunk3 is missing
-    expect(retryReport.unchanged).toBe(2); // chunk1 and chunk2 were recognized as up-to-date
-    expect(embeddingService.totalDocumentsEmbedded).toBe(1); // Only embedded the missing chunk
+    expect(retryReport.added).toBe(1);
+    expect(retryReport.unchanged).toBe(2);
+    expect(embeddingService.totalDocumentsEmbedded).toBe(1);
     expect(store.size()).toBe(3);
   });
 
@@ -114,17 +108,14 @@ describe('Vector Sync Service (Unit)', () => {
       dimensions: 1536,
     });
 
-    // Seed store with V1 configuration
     await syncVectors([chunk1, chunk2], store, serviceV1);
     expect(store.size()).toBe(2);
 
-    // Create service with new model name (simulating .env change)
     const serviceV2 = new MockEmbeddingService({
       modelName: 'text-embedding-3-large',
       dimensions: 1536,
     });
 
-    // Sync with V2 service
     const report = await syncVectors([chunk1, chunk2], store, serviceV2);
 
     expect(report.reEmbedded).toBe(2);
@@ -132,7 +123,6 @@ describe('Vector Sync Service (Unit)', () => {
     expect(report.unchanged).toBe(0);
     expect(serviceV2.totalDocumentsEmbedded).toBe(2);
 
-    // Verify stored document has updated fingerprint and model
     const storedDoc = store.getRawDocument(chunk1.id);
     expect(storedDoc?.embeddingConfig.model).toBe('text-embedding-3-large');
     expect(storedDoc?.embeddingConfig.fingerprint).toBe(serviceV2.getConfigFingerprint());
@@ -142,11 +132,9 @@ describe('Vector Sync Service (Unit)', () => {
     const store = new InMemoryVectorStore();
     const embeddingService = new MockEmbeddingService();
 
-    // Initial sync
     await syncVectors([chunk1], store, embeddingService);
     embeddingService.totalDocumentsEmbedded = 0;
 
-    // Modify sectionTitle and metadataHash, keeping contentHash unchanged
     const updatedChunk1: KnowledgeChunk = {
       ...chunk1,
       metadata: {
@@ -162,7 +150,6 @@ describe('Vector Sync Service (Unit)', () => {
     expect(report.reEmbedded).toBe(0);
     expect(report.added).toBe(0);
     expect(report.unchanged).toBe(0);
-    // CRITICAL: Assert 0 embedding calls were made!
     expect(embeddingService.totalDocumentsEmbedded).toBe(0);
 
     const stored = store.getRawDocument(chunk1.id);

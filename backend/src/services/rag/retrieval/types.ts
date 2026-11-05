@@ -1,6 +1,3 @@
-/**
- * Standard domain representation of a retrieved document chunk with verified citation metadata.
- */
 export interface RetrievedChunk {
   id: string;
   text: string;
@@ -12,9 +9,6 @@ export interface RetrievedChunk {
   score: number;
 }
 
-/**
- * Options supplied to a retrieval request.
- */
 export interface RetrievalOptions {
   topK?: number | undefined;
   minScore?: number | undefined;
@@ -23,9 +17,6 @@ export interface RetrievalOptions {
   filter?: Record<string, unknown> | undefined;
 }
 
-/**
- * Explicit outcomes of a retrieval operation.
- */
 export type RetrievalStatus =
   | 'SUCCESS'
   | 'EMPTY_BELOW_THRESHOLD'
@@ -33,9 +24,6 @@ export type RetrievalStatus =
   | 'ABORTED'
   | 'ERROR';
 
-/**
- * Comprehensive result of a retrieval invocation.
- */
 export interface RetrievalResult {
   status: RetrievalStatus;
   chunks: RetrievedChunk[];

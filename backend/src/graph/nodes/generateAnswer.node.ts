@@ -14,29 +14,15 @@ export interface GenerateAnswerNodeDependencies {
   masterDeadlineMs?: number | undefined;
 }
 
-/**
- * Node: generateAnswer
- *
- * Synthesizes an evidence-grounded answer using Phase 4 hardened XML prompt construction
- * and strict structured output completion.
- *
- * Defensive Guarantees:
- * 1. Early Terminal Guard: Returns immediately if status is non-pending.
- * 2. Dynamic Budget: Constrains generation to min(6.0s, remainingBudget).
- * 3. Non-Success Preservation: Status remains 'pending'; 'answered' is only assigned
- *    after citation validation succeeds.
- */
 export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
   return async function generateAnswer(
     state: SupportIQGraphState,
     config?: RunnableConfig
   ): Promise<Partial<SupportIQGraphState>> {
-    // 1. Early Terminal Guard
     if (state.status !== 'pending') {
       return state;
     }
 
-    // 2. Cancellation Check
     if (config?.signal?.aborted) {
       return {
         status: 'aborted',
@@ -46,7 +32,6 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       };
     }
 
-    // 3. Dynamic Timeout Budget Calculation
     const budget = calculateRemainingBudget(
       state,
       GENERATE_ANSWER_STANDARD_TIMEOUT_MS,
@@ -60,14 +45,12 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       };
     }
 
-    // 4. Build Grounded Prompt with XML Delimiters and Untrusted Data Escaping
     const prompt = buildGroundedPrompt({
       chunks: state.chunks,
       question: state.question,
       history: state.history,
     });
 
-    // 5. Invoke LLM Answer Generation
     const llmResult = await deps.llmChatService.generateStructuredAnswer(
       prompt.messages,
       {
@@ -76,7 +59,6 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       }
     );
 
-    // 6. Map LLM Failure Outcomes
     const usage = llmResult.usage;
     const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
     const promptTokens = usage?.promptTokens ?? 0;
@@ -127,7 +109,6 @@ export function createGenerateAnswerNode(deps: GenerateAnswerNodeDependencies) {
       };
     }
 
-    // 7. Strict Schema Validation
     const validated = rawLlmAnswerSchema.safeParse(llmResult.data);
     if (!validated.success) {
       return {

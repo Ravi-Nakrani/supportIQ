@@ -33,7 +33,6 @@ describe('Master Workflow Deadline & Invocation Rejection (Unit)', () => {
       executionTimeMs: 10,
     });
 
-    // Assessment node encounters timeout
     mockLlmService.enqueueAssessmentResponse({
       status: 'TIMEOUT',
       reason: 'LLM assessment timed out after 4000ms.',
@@ -61,8 +60,6 @@ describe('Master Workflow Deadline & Invocation Rejection (Unit)', () => {
       executionTimeMs: 10,
     });
 
-    // Assessment short-circuits to insufficient, triggering query rewrite
-    // Rewrite node encounters timeout
     mockLlmService.enqueueRewriteResponse({
       status: 'TIMEOUT',
       reason: 'Query rewrite timed out.',
@@ -95,7 +92,6 @@ describe('Master Workflow Deadline & Invocation Rejection (Unit)', () => {
       reason: 'Sufficient context present.',
     });
 
-    // Generation node encounters timeout
     mockLlmService.enqueueResponse({
       status: 'TIMEOUT',
       reason: 'Generation exceeded deadline.',
@@ -120,10 +116,9 @@ describe('Master Workflow Deadline & Invocation Rejection (Unit)', () => {
     const graphService = new SupportIQGraphService({
       retrievalService: mockRetrievalService as unknown as RetrievalService,
       llmChatService: mockLlmService,
-      masterDeadlineMs: 50, // Tiny 50ms deadline
+      masterDeadlineMs: 50,
     });
 
-    // Mock retrieval to delay longer than the master deadline
     mockRetrievalService.retrieveChunks.mockImplementation(async () => {
       await new Promise((resolve) => setTimeout(resolve, 80));
       return {

@@ -11,7 +11,6 @@ describe('SupportIQ Graph State (Unit)', () => {
     expect(channels.chunks).toBeDefined();
     expect(channels.retryCount).toBeDefined();
 
-    // Verify default values via value property or initialValueFactory
     const defaultStatus = channels.status.value ?? channels.status.initialValueFactory?.();
     expect(defaultStatus).toBe('pending');
 

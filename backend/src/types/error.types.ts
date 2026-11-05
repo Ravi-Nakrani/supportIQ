@@ -1,7 +1,3 @@
-/**
- * Standard error codes recognized across the SupportIQ public API.
- * Adheres strictly to docs/API_CONTRACTS.md.
- */
 export type ApiErrorCode =
   | 'BAD_REQUEST'
   | 'RATE_LIMITED'
@@ -11,9 +7,6 @@ export type ApiErrorCode =
   | 'INTERNAL_ERROR'
   | 'NOT_FOUND';
 
-/**
- * Standardized API error response payload envelope.
- */
 export interface ApiErrorEnvelope {
   error: {
     code: ApiErrorCode;
@@ -22,9 +15,6 @@ export interface ApiErrorEnvelope {
   };
 }
 
-/**
- * Operational application error with HTTP status code and standardized API error code.
- */
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: ApiErrorCode;
@@ -44,4 +34,3 @@ export class AppError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
-

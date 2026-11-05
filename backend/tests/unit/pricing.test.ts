@@ -16,10 +16,6 @@ describe('Model Pricing & Budgeting (Unit)', () => {
 
   it('should calculate exact worst-case reservation cost for default models', () => {
     const cost = calculateWorstCaseReservationCost('gpt-6-luna', 'text-embedding-3-small');
-    // Embedding: 600 * 20 / 1000 = 12
-    // Prompt: 12000 * 100 / 1000 = 1200
-    // Completion: 1500 * 500 / 1000 = 750
-    // Total = 1962 μUSD
     expect(cost).toBe(1962);
   });
 

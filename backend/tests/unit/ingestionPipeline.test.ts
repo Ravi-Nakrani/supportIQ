@@ -57,7 +57,6 @@ Standard shipping takes 3 to 5 business days.`;
     await writeFile(join(kbDir, 'returns-policy.md'), doc1, 'utf8');
     await writeFile(join(kbDir, 'shipping-policy.md'), doc2, 'utf8');
 
-    // First execution
     const firstRun = await runIngestionPipeline(kbDir, manifestPath);
 
     expect(firstRun.summary.totalDocuments).toBe(2);
@@ -65,14 +64,12 @@ Standard shipping takes 3 to 5 business days.`;
     expect(firstRun.summary.addedCount).toBe(3);
     expect(firstRun.summary.isIdempotent).toBe(false);
 
-    // Verify chunk ID structure and global uniqueness
     const chunkIds = firstRun.manifest.chunks.map((c) => c.id);
     expect(new Set(chunkIds).size).toBe(3);
     expect(chunkIds).toContain('shopease-returns-policy#overview#0');
     expect(chunkIds).toContain('shopease-returns-policy#defective-items#1');
     expect(chunkIds).toContain('shopease-shipping-policy#standard-delivery#0');
 
-    // Second execution against identical content must be strictly idempotent
     const secondRun = await runIngestionPipeline(kbDir, manifestPath);
 
     expect(secondRun.summary.isIdempotent).toBe(true);
@@ -81,7 +78,6 @@ Standard shipping takes 3 to 5 business days.`;
     expect(secondRun.summary.unchangedCount).toBe(3);
     expect(secondRun.summary.removedCount).toBe(0);
 
-    // generatedAt timestamp must be preserved unchanged
     expect(secondRun.manifest.generatedAt).toBe(firstRun.manifest.generatedAt);
   });
 
@@ -127,7 +123,6 @@ Original content text.`;
     await writeFile(join(kbDir, 'returns.md'), doc, 'utf8');
     await runIngestionPipeline(kbDir, manifestPath);
 
-    // Modify the content
     const modifiedDoc = doc.replace('Original content text.', 'Altered content text.');
     await writeFile(join(kbDir, 'returns.md'), modifiedDoc, 'utf8');
 

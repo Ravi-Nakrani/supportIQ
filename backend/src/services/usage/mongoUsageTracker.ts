@@ -19,7 +19,7 @@ export interface MongoUsageTrackerOptions {
 }
 
 interface MongoUsageDoc extends Document {
-  _id: string; // UTC date string "YYYY-MM-DD"
+  _id: string;
   requestCount: number;
   totalTokens: number;
   estimatedCostMicroUsd: number;
@@ -27,10 +27,6 @@ interface MongoUsageDoc extends Document {
   updatedAt?: Date;
 }
 
-/**
- * Production MongoDB-backed persistent usage tracker.
- * Enforces atomic hard-cap reservations against the daily_usage collection with fail-closed safety.
- */
 export class MongoUsageTracker implements IUsageTracker {
   private readonly client: MongoClient;
   private readonly dbName: string;
@@ -68,7 +64,6 @@ export class MongoUsageTracker implements IUsageTracker {
     const dateKey = new Date().toISOString().slice(0, 10);
     const col = this.getCollection();
 
-    // 1. Idempotently initialize daily document, handling concurrent duplicate-key race (E11000)
     try {
       await col.updateOne(
         { _id: dateKey },
@@ -83,7 +78,6 @@ export class MongoUsageTracker implements IUsageTracker {
         { upsert: true }
       );
     } catch (err: unknown) {
-      // If code is 11000 (duplicate key error), another concurrent request already initialized the day
       if ((err as { code?: number })?.code !== 11000) {
         throw new Error(
           `[Usage Tracker Error] Failed to initialize daily usage document: ${err instanceof Error ? err.message : String(err)}`
@@ -91,7 +85,6 @@ export class MongoUsageTracker implements IUsageTracker {
       }
     }
 
-    // 2. Atomic reservation: strictly verify current usage + reservation <= configured limit
     const res = await col.findOneAndUpdate(
       {
         _id: dateKey,
@@ -111,7 +104,6 @@ export class MongoUsageTracker implements IUsageTracker {
     );
 
     if (!res) {
-      // Ceiling was reached; inspect current document to classify specific limit breach
       const currentDoc = await col.findOne({ _id: dateKey });
       let reason: 'DAILY_REQUESTS_EXCEEDED' | 'DAILY_TOKENS_EXCEEDED' | 'DAILY_COST_EXCEEDED' =
         'DAILY_COST_EXCEEDED';
@@ -144,7 +136,6 @@ export class MongoUsageTracker implements IUsageTracker {
   }
 
   async reconcileUsage(params: ReconcileUsageParams): Promise<void> {
-    // Fail closed on unverified/incomplete usage: retain the reservation in full
     if (
       !params.isComplete ||
       params.actualTokens === undefined ||
@@ -161,7 +152,6 @@ export class MongoUsageTracker implements IUsageTracker {
     }
 
     const col = this.getCollection();
-    // Reconcile against the original preserved reservation dateKey!
     await col.updateOne(
       { _id: params.dateKey },
       {

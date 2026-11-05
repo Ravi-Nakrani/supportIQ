@@ -16,9 +16,6 @@ export interface VectorSyncReport {
   isFullySynced: boolean;
 }
 
-/**
- * Categorizes manifest chunks and stored vector signatures into sync actions.
- */
 export interface SyncPlan {
   toEmbed: KnowledgeChunk[];
   toUpdateMetadata: Array<{ id: string; metadata: ChunkMetadata }>;
@@ -28,9 +25,6 @@ export interface SyncPlan {
   isReEmbedded: Set<string>;
 }
 
-/**
- * Plans synchronization actions by comparing manifest chunks with stored vector signatures.
- */
 export function planVectorSync(
   manifestChunks: KnowledgeChunk[],
   storedSignatures: Array<{
@@ -54,7 +48,6 @@ export function planVectorSync(
     const stored = storedMap.get(chunk.id);
 
     if (!stored) {
-      // Missing chunk: needs initial embedding
       toEmbed.push(chunk);
       isAdded.add(chunk.id);
       continue;
@@ -65,18 +58,15 @@ export function planVectorSync(
     const contentMismatch = stored.contentHash !== chunk.metadata.contentHash;
 
     if (contentMismatch || fingerprintMismatch) {
-      // Content changed or embedding model/dimensions changed: must re-embed
       toEmbed.push(chunk);
       isReEmbedded.add(chunk.id);
     } else if (stored.metadataHash !== chunk.metadata.metadataHash) {
-      // Content & embedding are identical, but metadata changed: update metadata only (0 embedding cost)
       toUpdateMetadata.push({ id: chunk.id, metadata: chunk.metadata });
     } else {
       unchangedCount++;
     }
   }
 
-  // Find stale stored vectors whose chunk IDs are no longer in the manifest
   const toDeleteIds: string[] = [];
   for (const stored of storedSignatures) {
     if (!manifestMap.has(stored.id)) {
@@ -94,10 +84,6 @@ export function planVectorSync(
   };
 }
 
-/**
- * Synchronizes knowledge base chunks from the manifest to the vector database.
- * Completely recoverable: uses hash-based diffs to heal partial sync failures on retry.
- */
 export async function syncVectors(
   manifestChunks: KnowledgeChunk[],
   vectorStore: IVectorStore,
@@ -107,21 +93,17 @@ export async function syncVectors(
   const batchSize = Math.max(1, Math.min(50, options.batchSize ?? 20));
   const currentFingerprint = embeddingService.getConfigFingerprint();
 
-  // 1. Fetch current vector store state
   const storedSignatures = await vectorStore.getStoredSignatures();
 
-  // 2. Plan synchronization diff
   const plan = planVectorSync(manifestChunks, storedSignatures, currentFingerprint);
 
   let addedCount = 0;
   let reEmbeddedCount = 0;
 
-  // 3. Process chunks requiring embeddings in bounded batches
   for (let i = 0; i < plan.toEmbed.length; i += batchSize) {
     const chunkBatch = plan.toEmbed.slice(i, i + batchSize);
     const textBatch = chunkBatch.map((c) => c.text);
 
-    // Generate embeddings with batch retry policy (maxRetries: 2)
     const embeddings = await embeddingService.embedDocuments(textBatch, {
       maxRetries: 2,
     });
@@ -149,13 +131,11 @@ export async function syncVectors(
     }
   }
 
-  // 4. Update metadata-only changes without any embedding calls
   let metadataUpdatedCount = 0;
   if (plan.toUpdateMetadata.length > 0) {
     metadataUpdatedCount = await vectorStore.updateMetadataBatch(plan.toUpdateMetadata);
   }
 
-  // 5. Delete stale chunks
   let staleDeletedCount = 0;
   if (plan.toDeleteIds.length > 0) {
     staleDeletedCount = await vectorStore.deleteByIds(plan.toDeleteIds);

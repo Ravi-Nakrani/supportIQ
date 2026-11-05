@@ -34,7 +34,6 @@ describe('Token Counter Utility (Unit)', () => {
     ];
     const estimate = estimateChatRequestTokens(messages, null, 'gpt-6-luna');
 
-    // Expected: 2 messages * 4 overhead + role tokens + content tokens + 50 buffer
     expect(estimate).toBeGreaterThan(50);
   });
 

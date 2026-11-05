@@ -16,7 +16,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea height as user types
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -65,7 +64,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         transition: 'border-color var(--transition-fast)',
       }}
       onFocusCapture={() => {
-        // Subtle focus highlight handled by CSS
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.75rem' }}>

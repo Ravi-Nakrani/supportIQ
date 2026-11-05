@@ -24,10 +24,6 @@ function buildRequestOptions(
   return reqOptions;
 }
 
-/**
- * Production embedding service using the official OpenAI SDK.
- * Implements LangChain's EmbeddingsInterface for cross-compatibility.
- */
 export class OpenAIEmbeddingService implements IEmbeddingService {
   private readonly config: VectorConfig;
   private readonly client: OpenAI;
@@ -46,10 +42,6 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
     }
   }
 
-  /**
-   * Generates a 1536-dimensional vector for a user query.
-   * Defaults to maxRetries: 0 so interactive retrieval never hangs in retry loops.
-   */
   async embedQuery(query: string, options?: EmbeddingRequestOptions): Promise<number[]> {
     if (!query || query.trim().length === 0) {
       throw new Error('[Embedding Error] Query must be a non-empty string.');
@@ -92,11 +84,6 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
     return embedding;
   }
 
-  /**
-   * Generates embeddings for a batch of documents.
-   * Strictly preserves input-to-embedding mapping using response item indices.
-   * Defaults to maxRetries: 2 for batch ingestion resilience.
-   */
   async embedDocuments(
     documents: string[],
     options?: EmbeddingRequestOptions
@@ -114,7 +101,6 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
       buildRequestOptions(options, 2)
     );
 
-    // CRITICAL: Preserve input-to-embedding mapping using response index
     const sortedEmbeddings: number[][] = new Array(documents.length);
 
     for (const item of response.data) {
@@ -131,7 +117,6 @@ export class OpenAIEmbeddingService implements IEmbeddingService {
       sortedEmbeddings[item.index] = item.embedding;
     }
 
-    // Verify all positions were populated
     for (let i = 0; i < sortedEmbeddings.length; i++) {
       if (!sortedEmbeddings[i]) {
         throw new Error(

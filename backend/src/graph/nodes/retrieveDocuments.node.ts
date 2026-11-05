@@ -10,28 +10,15 @@ export interface RetrieveDocumentsNodeDependencies {
   masterDeadlineMs?: number | undefined;
 }
 
-/**
- * Node: retrieveDocuments
- *
- * Executes vector search against the ShopEase knowledge base using the current active query.
- *
- * Defensive Guarantees:
- * 1. Early Guard: If state.status !== 'pending' (e.g. prior rewrite failed/aborted),
- *    returns immediately without performing any retrieval or external service call.
- * 2. True Deadline Enforcement: Dynamically budgets the timeout to min(2.5s, remainingBudget).
- * 3. Signal Propagation: Respects caller cancellation via RunnableConfig.signal.
- */
 export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependencies) {
   return async function retrieveDocuments(
     state: SupportIQGraphState,
     config?: RunnableConfig
   ): Promise<Partial<SupportIQGraphState>> {
-    // 1. Early Terminal Guard: do not perform retrieval if status is already non-pending
     if (state.status !== 'pending') {
       return state;
     }
 
-    // 2. Cancellation Check
     if (config?.signal?.aborted) {
       return {
         status: 'aborted',
@@ -41,7 +28,6 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       };
     }
 
-    // 3. Dynamic Timeout Budget Calculation
     const budget = calculateRemainingBudget(
       state,
       RETRIEVAL_NODE_STANDARD_TIMEOUT_MS,
@@ -55,7 +41,6 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       };
     }
 
-    // 4. Determine Active Query
     const query = (state.currentQuery || state.question || '').trim();
     if (!query) {
       return {
@@ -64,7 +49,6 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       };
     }
 
-    // 5. Invoke Retrieval Service
     const retrievalResult = await deps.retrievalService.retrieveChunks(query, {
       topK: state.topK,
       minScore: state.minScore,
@@ -72,7 +56,6 @@ export function createRetrieveDocumentsNode(deps: RetrieveDocumentsNodeDependenc
       signal: config?.signal,
     });
 
-    // 6. Map Outcomes
     const usage = retrievalResult.usage;
     const hasValidUsage = Boolean(usage && typeof usage.promptTokens === 'number');
     const embeddingTokens = usage?.promptTokens ?? 0;

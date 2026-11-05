@@ -47,7 +47,6 @@ describe('Retrieval Service (Unit)', () => {
     await store.bulkUpsert([sampleDoc1]);
 
     const embeddingService = new MockEmbeddingService({ dimensions: 3 });
-    // Mock embedQuery to return [1.0, 0.0, 0.0] matching doc1
     vi.spyOn(embeddingService, 'embedQuery').mockResolvedValue([1.0, 0.0, 0.0]);
 
     const service = new RetrievalService({
@@ -71,7 +70,6 @@ describe('Retrieval Service (Unit)', () => {
     await store.bulkUpsert([sampleDoc1]);
 
     const embeddingService = new MockEmbeddingService({ dimensions: 3 });
-    // Vector orthogonal to doc1 [0.0, 1.0, 0.0] -> score = 0.0
     vi.spyOn(embeddingService, 'embedQuery').mockResolvedValue([0.0, 1.0, 0.0]);
 
     const service = new RetrievalService({
@@ -100,14 +98,12 @@ describe('Retrieval Service (Unit)', () => {
       config: baseConfig,
     });
 
-    // Requesting topK: 50 should be clamped to 10
     await service.retrieveChunks('test', { topK: 50 });
     expect(searchSpy).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ topK: 10 })
     );
 
-    // Requesting topK: 0 should be clamped to 1
     await service.retrieveChunks('test', { topK: 0 });
     expect(searchSpy).toHaveBeenCalledWith(
       expect.anything(),
@@ -160,7 +156,6 @@ describe('Retrieval Service (Unit)', () => {
     const embeddingService = new MockEmbeddingService({ dimensions: 3 });
     vi.spyOn(embeddingService, 'embedQuery').mockResolvedValue([1, 0, 0]);
 
-    // Force search to wait 60ms when timeout is 40ms
     vi.spyOn(store, 'search').mockImplementation(async () => {
       await new Promise((resolve) => setTimeout(resolve, 60));
       return [{ id: sampleDoc1.id, text: sampleDoc1.text, metadata: sampleDoc1.metadata, score: 0.9 }];
@@ -174,7 +169,6 @@ describe('Retrieval Service (Unit)', () => {
 
     const result = await service.retrieveChunks('Late result query');
 
-    // CRITICAL: A late database result MUST NOT be returned as SUCCESS!
     expect(result.status).toBe('TIMEOUT');
     expect(result.chunks).toHaveLength(0);
   });
@@ -214,7 +208,6 @@ describe('Retrieval Service (Unit)', () => {
     });
 
     const controller = new AbortController();
-    // Abort after 15ms
     setTimeout(() => controller.abort(new Error('Caller cancelled request')), 15);
 
     const result = await service.retrieveChunks('Mid-operation cancel', {

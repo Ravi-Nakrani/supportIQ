@@ -9,7 +9,6 @@ export interface CitationModalProps {
 export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose }) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close on Escape key press
   useEffect(() => {
     if (!citation) return;
 
@@ -21,7 +20,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    // Focus close button on open for accessible keyboard navigation
     closeButtonRef.current?.focus();
 
     return () => {
@@ -53,7 +51,7 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
         role="dialog"
         aria-modal="true"
         aria-labelledby="citation-modal-title"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
+        onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: 'var(--color-bg-surface)',
           borderRadius: 'var(--radius-lg)',
@@ -68,7 +66,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
           animation: 'fadeIn var(--transition-fast)',
         }}
       >
-        {/* Modal Header */}
         <div
           style={{
             padding: '1.25rem 1.5rem',
@@ -156,7 +153,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
           </button>
         </div>
 
-        {/* Modal Body */}
         <div
           style={{
             padding: '1.25rem 1.5rem',
@@ -166,7 +162,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
             gap: '1rem',
           }}
         >
-          {/* Chunk ID metadata */}
           <div>
             <span
               style={{
@@ -198,7 +193,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
             </code>
           </div>
 
-          {/* Verified Excerpt Box */}
           <div>
             <span
               style={{
@@ -232,7 +226,6 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
           </div>
         </div>
 
-        {/* Modal Footer */}
         <div
           style={{
             padding: '0.875rem 1.5rem',

@@ -63,12 +63,10 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
       .mockResolvedValueOnce(mockResponse1)
       .mockResolvedValueOnce(mockResponse2);
 
-    // 1. Initial Render
     await act(async () => {
       render(<App />);
     });
 
-    // Check Welcome Hero and starter questions
     expect(
       screen.getByRole('heading', { level: 2, name: /How can we help with your ShopEase order\?/i })
     ).toBeInTheDocument();
@@ -78,10 +76,8 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
     });
     expect(starterBtn).toBeInTheDocument();
 
-    // 2. Click starter question to submit
     await user.click(starterBtn);
 
-    // Assert user question and assistant answer are rendered
     expect(
       screen.getByText('What is the return policy for defective products?')
     ).toBeInTheDocument();
@@ -91,7 +87,6 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
       )
     ).toBeInTheDocument();
 
-    // 3. Inspect Citation Pill and open Modal
     const citationPill = screen.getByRole('button', {
       name: /View citation source: ShopEase Returns Policy — Defective Products/i,
     });
@@ -99,24 +94,20 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
 
     await user.click(citationPill);
 
-    // Modal dialog assertions
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('shopease-returns-policy#defective#1')).toBeInTheDocument();
     expect(
       screen.getByText(/"Defective items are covered for 30 days\."/i)
     ).toBeInTheDocument();
 
-    // Close modal via Escape
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    // 4. Click suggested follow-up question
     const followUpBtn = screen.getByRole('button', { name: 'How long do refunds take?' });
     expect(followUpBtn).toBeInTheDocument();
 
     await user.click(followUpBtn);
 
-    // Verify backend received bounded history from turn 1
     expect(sendSpy).toHaveBeenLastCalledWith(
       {
         message: 'How long do refunds take?',
@@ -132,18 +123,15 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
       expect.any(AbortSignal)
     );
 
-    // Verify turn 2 assistant response renders
     expect(
       screen.getByText('Refunds take 3 to 5 business days after approval.')
     ).toBeInTheDocument();
 
-    // 5. Click "New Chat" button to reset conversation
     const newChatBtn = screen.getByRole('button', { name: /Start a new conversation/i });
     expect(newChatBtn).toBeEnabled();
 
     await user.click(newChatBtn);
 
-    // Verify conversation thread is cleared and welcome view restored
     expect(screen.queryByRole('log')).not.toBeInTheDocument();
     expect(
       screen.queryByText('Refunds take 3 to 5 business days after approval.')
@@ -180,11 +168,9 @@ describe('SupportIQ Public Chat Integration (Frontend)', () => {
     const input = screen.getByRole('textbox');
     await user.type(input, 'How long does shipping take?{enter}');
 
-    // Error alert banner should display
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText('Request Timed Out')).toBeInTheDocument();
 
-    // Click "Try Again"
     const retryBtn = screen.getByRole('button', { name: 'Try Again' });
     await user.click(retryBtn);
 

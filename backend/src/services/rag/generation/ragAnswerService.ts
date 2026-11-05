@@ -20,10 +20,6 @@ export interface RagAnswerServiceDependencies {
   citationValidator?: CitationValidator | undefined;
 }
 
-/**
- * End-to-end service orchestrating retrieval, grounded prompt construction,
- * strict structured LLM completion, and programmatic citation validation.
- */
 export class RagAnswerService {
   private readonly retrievalService: RetrievalService;
   private readonly llmChatService: ILlmChatService;
@@ -37,20 +33,9 @@ export class RagAnswerService {
     this.citationValidator = dependencies.citationValidator ?? new CitationValidator();
   }
 
-  /**
-   * Generates an evidence-grounded answer for a user question.
-   *
-   * Accurately distinguishes and reports domain outcomes:
-   * - 'answered': Grounded answer synthesized and verified against retrieved chunks.
-   * - 'insufficient_evidence': Missing evidence, below threshold, or uncorroborated answer.
-   * - 'timeout': Retrieval or LLM generation deadline exceeded.
-   * - 'aborted': Cancelled by caller AbortSignal.
-   * - 'error': Infrastructure, provider, or validation error.
-   */
   async generateAnswer(request: GroundedAnswerRequest): Promise<GroundedAnswerResult> {
     const startTime = Date.now();
 
-    // 1. Immediate pre-flight signal check
     if (request.signal?.aborted) {
       return {
         status: 'aborted',
@@ -64,7 +49,6 @@ export class RagAnswerService {
       };
     }
 
-    // 2. Validate question input
     const question = request.question?.trim();
     if (!question) {
       return {
@@ -77,16 +61,13 @@ export class RagAnswerService {
       };
     }
 
-    // 3. Step 1: Semantic Retrieval
     const retrievalResult = await this.retrievalService.retrieveChunks(question, {
       topK: request.topK,
       minScore: request.minScore,
       signal: request.signal,
     });
 
-    // 4. Handle Retrieval Failure / Empty Outcomes
     if (retrievalResult.status === 'EMPTY_BELOW_THRESHOLD') {
-      // Fast short-circuit: do not call LLM when no relevant evidence exists
       return {
         status: 'insufficient_evidence',
         answer: STANDARD_REFUSAL_ANSWER,
@@ -130,14 +111,12 @@ export class RagAnswerService {
       };
     }
 
-    // 5. Step 2: Build Grounded Prompt with Hardened XML Escaping
     const prompt = buildGroundedPrompt({
       chunks: retrievalResult.chunks,
       question,
       history: request.history,
     });
 
-    // 6. Step 3: LLM Generation
     const llmResult = await this.llmChatService.generateStructuredAnswer(
       prompt.messages,
       {
@@ -146,7 +125,6 @@ export class RagAnswerService {
       }
     );
 
-    // 7. Handle LLM Failure / Truncation / Refusal Outcomes
     if (llmResult.status === 'ABORTED') {
       return {
         status: 'aborted',
@@ -187,7 +165,6 @@ export class RagAnswerService {
 
     const rawData = llmResult.data;
 
-    // 8. If model determined evidence was insufficient
     if (!rawData.hasSufficientEvidence) {
       return {
         status: 'insufficient_evidence',
@@ -201,7 +178,6 @@ export class RagAnswerService {
       };
     }
 
-    // 9. Step 4: Strict Multi-Tiered Citation Validation
     const validation = this.citationValidator.validate(
       rawData.citations,
       retrievalResult.chunks,
@@ -209,7 +185,6 @@ export class RagAnswerService {
       { maxCitations: retrievalResult.chunks.length }
     );
 
-    // If answer claimed sufficiency but zero citations survived, reject as ungrounded
     if (validation.isUngrounded || validation.validatedCitations.length === 0) {
       return {
         status: 'insufficient_evidence',
@@ -222,7 +197,6 @@ export class RagAnswerService {
       };
     }
 
-    // 10. Success: Grounded answer with verified source citations
     return {
       status: 'answered',
       answer: rawData.answer,

@@ -1,24 +1,12 @@
 import { createHash } from 'node:crypto';
 import { Env, env as defaultEnv } from './env.js';
 
-/**
- * Computes a deterministic SHA-256 fingerprint for an embedding model configuration.
- * When the model name or dimension changes, the fingerprint changes, signaling that
- * stored vectors must be regenerated.
- *
- * @param model Model identifier (e.g. 'text-embedding-3-small').
- * @param dimensions Vector dimensions (e.g. 1536).
- * @returns Hex-encoded SHA-256 fingerprint.
- */
 export function computeEmbeddingFingerprint(model: string, dimensions: number): string {
   return createHash('sha256')
     .update(`${model.trim().toLowerCase()}:${dimensions}`)
     .digest('hex');
 }
 
-/**
- * Validated vector and embedding configuration structure.
- */
 export interface VectorConfig {
   mongoUri?: string | undefined;
   dbName: string;
@@ -33,12 +21,6 @@ export interface VectorConfig {
   retrievalTimeoutMs: number;
 }
 
-/**
- * Resolves the vector configuration from the validated environment.
- *
- * @param activeEnv Validated application environment (defaults to singleton `env`).
- * @returns Immutable VectorConfig object.
- */
 export function getVectorConfig(activeEnv: Env = defaultEnv): Readonly<VectorConfig> {
   const model = activeEnv.OPENAI_EMBEDDING_MODEL;
   const dimensions = activeEnv.OPENAI_EMBEDDING_DIMENSIONS;
@@ -58,10 +40,6 @@ export function getVectorConfig(activeEnv: Env = defaultEnv): Readonly<VectorCon
   });
 }
 
-/**
- * Asserts that the MongoDB connection URI is configured.
- * Throws a descriptive configuration error if missing.
- */
 export function assertMongoConfig(
   config: VectorConfig
 ): asserts config is VectorConfig & { mongoUri: string } {
@@ -73,10 +51,6 @@ export function assertMongoConfig(
   }
 }
 
-/**
- * Asserts that the OpenAI API key is configured.
- * Throws a descriptive configuration error if missing.
- */
 export function assertOpenAIConfig(
   config: VectorConfig
 ): asserts config is VectorConfig & { openAiApiKey: string } {

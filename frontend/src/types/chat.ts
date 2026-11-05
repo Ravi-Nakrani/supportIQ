@@ -1,8 +1,3 @@
-/**
- * SupportIQ Frontend API & Chat Types
- * Aligned strictly with docs/API_CONTRACTS.md and backend Phase 6 schemas.
- */
-
 export interface HistoryMessage {
   role: 'user' | 'assistant';
   content: string;

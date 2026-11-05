@@ -57,7 +57,6 @@ describe('useChat Hook (Frontend)', () => {
     });
 
     it('should prove the current question is not duplicated in the history payload', () => {
-      // Prior settled conversation
       const messages: UIMessage[] = [
         { id: '1', role: 'user', content: 'Previous question', timestamp: 1 },
         { id: '2', role: 'assistant', content: 'Previous answer', timestamp: 2 },
@@ -66,7 +65,6 @@ describe('useChat Hook (Frontend)', () => {
       const newQuestion = 'Current new question';
       const historyPayload = buildBoundedHistory(messages);
 
-      // Verify the new question is NOT present anywhere in the constructed history
       expect(historyPayload.some((h) => h.content === newQuestion)).toBe(false);
       expect(historyPayload).toEqual([
         { role: 'user', content: 'Previous question' },
@@ -181,7 +179,6 @@ describe('useChat Hook (Frontend)', () => {
         hookResult = renderHook(() => useChat()).result;
       });
 
-      // Start message submission
       act(() => {
         void hookResult.current.sendMessage('Slow question');
       });
@@ -189,7 +186,6 @@ describe('useChat Hook (Frontend)', () => {
       expect(hookResult.current.isLoading).toBe(true);
       expect(hookResult.current.messages.length).toBe(1);
 
-      // User resets conversation while request is pending
       act(() => {
         hookResult.current.resetConversation();
       });
@@ -219,14 +215,12 @@ describe('useChat Hook (Frontend)', () => {
 
       expect(hookResult.current.messages.length).toBe(1);
 
-      // Reset conversation
       act(() => {
         hookResult.current.resetConversation();
       });
 
       expect(hookResult.current.messages).toEqual([]);
 
-      // Late resolution arrives from old conversation
       await act(async () => {
         resolvePromise({
           status: 'answered',
@@ -235,7 +229,6 @@ describe('useChat Hook (Frontend)', () => {
         });
       });
 
-      // Thread remains empty!
       expect(hookResult.current.messages).toEqual([]);
       expect(hookResult.current.isLoading).toBe(false);
     });
@@ -262,12 +255,10 @@ describe('useChat Hook (Frontend)', () => {
         hookResult.current.resetConversation();
       });
 
-      // Late error arrives from old conversation
       await act(async () => {
         rejectPromise(new ApiClientError('Server error', 500, 'INTERNAL_ERROR'));
       });
 
-      // Error state remains null
       expect(hookResult.current.error).toBeNull();
       expect(hookResult.current.messages).toEqual([]);
     });
@@ -295,13 +286,11 @@ describe('useChat Hook (Frontend)', () => {
         hookResult = renderHook(() => useChat()).result;
       });
 
-      // 1. Start first request
       act(() => {
         void hookResult.current.sendMessage('First query');
       });
       expect(hookResult.current.isLoading).toBe(true);
 
-      // 2. User clicks New Chat (advancing generation) and starts second request
       act(() => {
         hookResult.current.resetConversation();
       });
@@ -310,15 +299,12 @@ describe('useChat Hook (Frontend)', () => {
       });
       expect(hookResult.current.isLoading).toBe(true);
 
-      // 3. First request's finally finishes late
       await act(async () => {
         resolveFirst({ status: 'answered', answer: 'First answer', sources: [] });
       });
 
-      // The second request MUST still be loading!
       expect(hookResult.current.isLoading).toBe(true);
 
-      // 4. Second request finishes
       await act(async () => {
         resolveSecond({ status: 'answered', answer: 'Second answer', sources: [] });
       });
@@ -436,7 +422,6 @@ describe('useChat Hook (Frontend)', () => {
       expect(hookResult.current.isBackendWarmingUp).toBe(true);
       expect(hookResult.current.backendReadiness).toBe('checking');
 
-      // Submit while warming up
       await act(async () => {
         await hookResult.current.sendMessage('Queued policy question');
       });
@@ -444,7 +429,6 @@ describe('useChat Hook (Frontend)', () => {
       expect(hookResult.current.queuedMessage).toBe('Queued policy question');
       expect(sendSpy).not.toHaveBeenCalled();
 
-      // Backend readiness resolves
       await act(async () => {
         resolveReadiness(true);
       });

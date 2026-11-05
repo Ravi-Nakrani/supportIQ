@@ -14,29 +14,15 @@ export interface AssessEvidenceNodeDependencies {
   masterDeadlineMs?: number | undefined;
 }
 
-/**
- * Node: assessEvidence
- *
- * Evaluates whether retrieved document chunks contain sufficient factual evidence
- * to answer the customer's question.
- *
- * Defensive Guarantees:
- * 1. Fast Short-Circuit: If state.chunks is empty, skips the LLM call entirely
- *    and sets isSufficient: false immediately.
- * 2. Strict Zod Validation: Validates structured assessment data before updating state.
- * 3. Dynamic Budget: Limits LLM execution to min(4.0s, remainingBudget).
- */
 export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
   return async function assessEvidence(
     state: SupportIQGraphState,
     config?: RunnableConfig
   ): Promise<Partial<SupportIQGraphState>> {
-    // 1. Early Terminal Guard
     if (state.status !== 'pending') {
       return state;
     }
 
-    // 2. Cancellation Check
     if (config?.signal?.aborted) {
       return {
         status: 'aborted',
@@ -46,7 +32,6 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       };
     }
 
-    // 3. Fast Short-Circuit on Empty Chunks (Zero LLM Tokens / Latency)
     if (!state.chunks || state.chunks.length === 0) {
       return {
         evidenceAssessment: {
@@ -56,7 +41,6 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       };
     }
 
-    // 4. Dynamic Timeout Budget Calculation
     const budget = calculateRemainingBudget(
       state,
       ASSESS_EVIDENCE_STANDARD_TIMEOUT_MS,
@@ -70,13 +54,11 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       };
     }
 
-    // 5. Build Assessment Prompt
     const prompt = buildEvidenceAssessmentPrompt({
       question: state.question,
       chunks: state.chunks,
     });
 
-    // 6. Invoke LLM Assessment
     const assessmentResult = await deps.llmChatService.assessEvidence(
       prompt.messages,
       {
@@ -85,7 +67,6 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       }
     );
 
-    // 7. Map LLM Failure Outcomes
     const usage = assessmentResult.usage;
     const hasValidUsage = Boolean(usage && typeof usage.totalTokens === 'number');
     const promptTokens = usage?.promptTokens ?? 0;
@@ -136,7 +117,6 @@ export function createAssessEvidenceNode(deps: AssessEvidenceNodeDependencies) {
       };
     }
 
-    // 8. Strict Zod Validation Check
     const validated = evidenceAssessmentSchema.safeParse(assessmentResult.data);
     if (!validated.success) {
       return {

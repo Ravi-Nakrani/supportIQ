@@ -46,7 +46,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     );
   }
 
-  // Assistant Message
   const isInsufficient = message.status === 'insufficient_evidence';
   const hasSources = message.sources && message.sources.length > 0;
   const hasFollowUps = message.suggestedFollowUps && message.suggestedFollowUps.length > 0;
@@ -60,7 +59,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         margin: '1rem 0',
       }}
     >
-      {/* Assistant Avatar */}
       <div
         aria-hidden="true"
         style={{
@@ -90,7 +88,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           gap: '0.75rem',
         }}
       >
-        {/* Main message card */}
         <div
           style={{
             backgroundColor: 'var(--color-bg-surface)',
@@ -103,7 +100,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             gap: '0.75rem',
           }}
         >
-          {/* Status badge when evidence is insufficient */}
           {isInsufficient && (
             <div
               style={{
@@ -125,7 +121,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             </div>
           )}
 
-          {/* Answer text */}
           <div
             style={{
               fontSize: '0.9375rem',
@@ -138,7 +133,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             {message.content}
           </div>
 
-          {/* Source Citations */}
           {hasSources && onOpenCitation && (
             <div
               style={{
@@ -174,7 +168,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           )}
         </div>
 
-        {/* Suggested Follow-Ups */}
         {hasFollowUps && onSelectQuestion && (
           <div
             style={{

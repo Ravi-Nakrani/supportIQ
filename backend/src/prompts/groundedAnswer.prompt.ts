@@ -1,7 +1,3 @@
-/**
- * System prompt governing grounded answer generation for SupportIQ.
- * Enforces evidence-first grounding, untrusted input discipline, and explicit refusal behavior.
- */
 export const GROUNDED_ANSWER_SYSTEM_PROMPT = `You are SupportIQ, an AI customer support assistant for ShopEase, an e-commerce platform.
 Your primary responsibility is to answer customer questions about ShopEase policies accurately, concisely, and exclusively based on the provided documentation.
 

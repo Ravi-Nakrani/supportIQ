@@ -8,18 +8,15 @@ describe('App Root Component (Frontend)', () => {
       render(<App />);
     });
 
-    // Header assertions
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'SupportIQ' })).toBeInTheDocument();
     expect(screen.getByText(/ShopEase Customer Support Assistant/i)).toBeInTheDocument();
 
-    // Main landmark assertions
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /How can we help with your ShopEase order\?/i })
     ).toBeInTheDocument();
 
-    // Footer assertions
     const footer = screen.getByRole('contentinfo');
     expect(footer).toBeInTheDocument();
     expect(footer).toHaveTextContent(/ShopEase is a fictional brand/i);

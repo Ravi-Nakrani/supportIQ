@@ -24,20 +24,6 @@ export interface MongoReadinessCheckerOptions {
   cacheTtlMs?: number | undefined;
 }
 
-/**
- * Validates deep runtime dependency readiness for SupportIQ.
- *
- * Checks:
- * 1. MongoDB Atlas connectivity via ping.
- * 2. Vector search index presence on the vector collection, requiring BOTH
- *    `status === 'READY'` and `queryable === true`.
- * 3. Knowledge base data integrity: verifies all expected chunk IDs derived from
- *    the canonical manifest exist in the vector collection.
- * 4. Usage tracking collection accessibility.
- *
- * Invariant: Never invokes OpenAI models or incurs API credit expenditure.
- * Caches readiness results for 15 seconds to prevent database load spikes.
- */
 export class MongoReadinessChecker implements IReadinessChecker {
   private readonly client: MongoClient | undefined;
   private readonly dbName: string;
@@ -89,10 +75,8 @@ export class MongoReadinessChecker implements IReadinessChecker {
     try {
       const db = this.client.db(this.dbName);
 
-      // 1. Verify MongoDB cluster connectivity
       await db.command({ ping: 1 });
 
-      // 2. Verify supportiq_vector_index exists, status === 'READY' and queryable === true
       const vectorCollection = db.collection<{ _id: string }>(this.vectorCollectionName);
       let targetIndex: { name?: string; status?: string; queryable?: boolean } | undefined;
 
@@ -139,7 +123,6 @@ export class MongoReadinessChecker implements IReadinessChecker {
         return result;
       }
 
-      // 3. Derive expected knowledge base data from manifest and verify collection contents
       const manifest = await readExistingManifest(this.manifestPath);
       if (!manifest || !manifest.chunks || manifest.chunks.length === 0) {
         const result: ReadinessResult = {
@@ -172,7 +155,6 @@ export class MongoReadinessChecker implements IReadinessChecker {
         return result;
       }
 
-      // 4. Verify daily_usage collection accessibility
       const usageCollection = db.collection(this.usageCollectionName);
       await usageCollection.findOne({}, { projection: { _id: 1 } });
 

@@ -10,19 +10,11 @@ interface ClientRequestRecord {
   timestamps: number[];
 }
 
-/**
- * Creates an in-memory sliding window IP rate limiting middleware.
- *
- * Operational Note:
- * This rate limiter is process-local. In horizontally scaled deployments,
- * rate limits apply per container/worker process.
- */
 export function createRateLimiter(options: RateLimitOptions): RequestHandler {
   const windowMs = options.windowMs;
   const maxRequests = options.maxRequests;
   const clientStore = new Map<string, ClientRequestRecord>();
 
-  // Periodic cleanup of stale client IP entries (every 60s)
   const cleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [ip, record] of clientStore.entries()) {
@@ -33,11 +25,9 @@ export function createRateLimiter(options: RateLimitOptions): RequestHandler {
     }
   }, 60000);
 
-  // Unref timer so it doesn't prevent Node process termination
   cleanupTimer.unref();
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    // Resolve client IP (Express req.ip respects configured trust proxy)
     const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
     const now = Date.now();
 
@@ -47,7 +37,6 @@ export function createRateLimiter(options: RateLimitOptions): RequestHandler {
       clientStore.set(clientIp, record);
     }
 
-    // Filter out timestamps outside the sliding window
     record.timestamps = record.timestamps.filter((ts) => now - ts < windowMs);
 
     const currentCount = record.timestamps.length;
@@ -55,7 +44,6 @@ export function createRateLimiter(options: RateLimitOptions): RequestHandler {
     const oldestTimestamp = record.timestamps[0] ?? now;
     const resetTimeSeconds = Math.ceil((oldestTimestamp + windowMs - now) / 1000);
 
-    // Standard rate limit headers
     res.setHeader('RateLimit-Limit', maxRequests);
     res.setHeader('RateLimit-Remaining', remaining);
     res.setHeader('RateLimit-Reset', resetTimeSeconds);
@@ -73,9 +61,7 @@ export function createRateLimiter(options: RateLimitOptions): RequestHandler {
       return;
     }
 
-    // Record request timestamp
     record.timestamps.push(now);
     next();
   };
 }
-

@@ -69,33 +69,28 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
   });
 
   it('Scenario 2: Empty initial retrieval triggers query rewrite and succeeds on second retrieval', async () => {
-    // Attempt 1: 0 chunks returned
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'EMPTY_BELOW_THRESHOLD',
       chunks: [],
       executionTimeMs: 15,
     });
 
-    // Query rewrite executes
     mockLlmService.enqueueRewriteSuccess({
       rewrittenQuery: 'ShopEase policy on opened defective electronics return',
       reason: 'Refined search terms to defective returns policy.',
     });
 
-    // Attempt 2: matching chunks returned
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'SUCCESS',
       chunks: [sampleChunk],
       executionTimeMs: 20,
     });
 
-    // Assessment for attempt 2
     mockLlmService.enqueueAssessmentSuccess({
       isSufficient: true,
       reason: 'Second retrieval yielded matching policy chunk.',
     });
 
-    // Answer generation
     mockLlmService.enqueueSuccess({
       answer: 'Opened defective products can be returned within 30 days.',
       hasSufficientEvidence: true,
@@ -119,16 +114,12 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
 
     expect(result.status).toBe('answered');
     expect(result.sources).toHaveLength(1);
-    // Verifies two retrievals occurred
     expect(mockRetrievalService.retrieveChunks).toHaveBeenCalledTimes(2);
-    // Verifies exactly one rewrite occurred
     expect(mockLlmService.rewriteInvocationCount).toBe(1);
-    // Verifies assessment on empty chunks was skipped, so only attempt 2 called LLM assessment
     expect(mockLlmService.assessmentInvocationCount).toBe(1);
   });
 
   it('Scenario 3: Empty initial retrieval triggers query rewrite, second retrieval still empty -> returns insufficient_evidence (proves retry limit strictly 1)', async () => {
-    // Attempt 1: empty
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'EMPTY_BELOW_THRESHOLD',
       chunks: [],
@@ -140,7 +131,6 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
       reason: 'Attempted reformulation.',
     });
 
-    // Attempt 2: still empty
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'EMPTY_BELOW_THRESHOLD',
       chunks: [],
@@ -162,13 +152,11 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
     );
     expect(result.sources).toEqual([]);
     expect(result.suggestedFollowUps.length).toBeGreaterThan(0);
-    // Critical: strictly capped at 2 retrievals (1 initial + 1 retry)
     expect(mockRetrievalService.retrieveChunks).toHaveBeenCalledTimes(2);
     expect(mockLlmService.rewriteInvocationCount).toBe(1);
   });
 
   it('Scenario 4: Weak initial retrieval triggers rewrite, retry still weak -> returns insufficient_evidence', async () => {
-    // Attempt 1: weak chunk
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'SUCCESS',
       chunks: [sampleChunk],
@@ -185,7 +173,6 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
       reason: 'Clarified terms.',
     });
 
-    // Attempt 2: weak chunk
     mockRetrievalService.retrieveChunks.mockResolvedValueOnce({
       status: 'SUCCESS',
       chunks: [sampleChunk],
@@ -224,7 +211,6 @@ describe('SupportIQ LangGraph Service (End-to-End Unit)', () => {
       reason: 'Sufficient evidence claimed.',
     });
 
-    // Generation hallucinated chunk ID
     mockLlmService.enqueueSuccess({
       answer: 'You have 90 days to return according to hallucinated clause.',
       hasSufficientEvidence: true,

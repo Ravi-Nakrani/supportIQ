@@ -32,9 +32,6 @@ export interface SupportIQGraphDependencies {
   masterDeadlineMs?: number;
 }
 
-/**
- * Constructs and compiles the SupportIQ LangGraph StateGraph.
- */
 export function createSupportIQGraph(deps: SupportIQGraphDependencies) {
   const retrieveDocuments = createRetrieveDocumentsNode({
     retrievalService: deps.retrievalService,
@@ -61,7 +58,6 @@ export function createSupportIQGraph(deps: SupportIQGraphDependencies) {
   });
 
   const workflow = new StateGraph(SupportIQGraphAnnotation)
-    // 1. Register discrete workflow nodes
     .addNode('retrieveDocuments', retrieveDocuments)
     .addNode('assessEvidence', assessEvidence)
     .addNode('rewriteQuery', rewriteQuery)
@@ -69,13 +65,11 @@ export function createSupportIQGraph(deps: SupportIQGraphDependencies) {
     .addNode('validateCitations', validateCitations)
     .addNode('returnInsufficientEvidence', returnInsufficientEvidence)
 
-    // 2. Wire static edges
     .addEdge(START, 'retrieveDocuments')
     .addEdge('retrieveDocuments', 'assessEvidence')
     .addEdge('validateCitations', END)
     .addEdge('returnInsufficientEvidence', END)
 
-    // 3. Wire conditional routing edges
     .addConditionalEdges('assessEvidence', routeAfterAssessment, {
       generateAnswer: 'generateAnswer',
       rewriteQuery: 'rewriteQuery',
@@ -95,16 +89,6 @@ export function createSupportIQGraph(deps: SupportIQGraphDependencies) {
   return workflow.compile();
 }
 
-/**
- * Service orchestrating execution of the compiled SupportIQ LangGraph workflow.
- *
- * Enforces:
- * 1. Master 20-second workflow deadline with dynamic budgeting.
- * 2. Invocation cancellation and rejection handling via try/catch/finally.
- * 3. Post-invoke deadline check (never returns successful result after deadline expiration).
- * 4. Strict terminal status enforcement: only 'answered' is considered a success;
- *    any unexpected non-terminal state returns a safe internal error result.
- */
 export class SupportIQGraphService {
   private readonly compiledGraph: ReturnType<typeof createSupportIQGraph>;
   private readonly masterDeadlineMs: number;
@@ -115,16 +99,12 @@ export class SupportIQGraphService {
     this.compiledGraph = createSupportIQGraph(dependencies);
   }
 
-  /**
-   * Executes the SupportIQ RAG graph for a customer inquiry.
-   */
   async execute(request: GroundedAnswerRequest): Promise<GroundedAnswerResult> {
     const startTime = Date.now();
     const deadlineMs = request.timeoutMs
       ? Math.min(request.timeoutMs, this.masterDeadlineMs)
       : this.masterDeadlineMs;
 
-    // 1. Immediate pre-flight input validation
     const question = request.question?.trim();
     if (!question) {
       return {
@@ -137,7 +117,6 @@ export class SupportIQGraphService {
       };
     }
 
-    // 2. Immediate pre-flight signal check
     const callerSignal = request.signal;
     if (callerSignal?.aborted) {
       return {
@@ -152,7 +131,6 @@ export class SupportIQGraphService {
       };
     }
 
-    // 3. Set master deadline timer and combined AbortSignal
     let timer: NodeJS.Timeout | undefined;
     const timeoutController = new AbortController();
 
@@ -165,7 +143,6 @@ export class SupportIQGraphService {
         ? AbortSignal.any([callerSignal, timeoutController.signal])
         : timeoutController.signal;
 
-      // 4. Invoke the compiled LangGraph workflow with invocation configuration
       const finalState = await this.compiledGraph.invoke(
         {
           question,
@@ -181,7 +158,6 @@ export class SupportIQGraphService {
         }
       );
 
-      // 5. Post-invoke deadline check: Verify master deadline did not elapse during/after invoke
       const totalElapsedMs = Date.now() - startTime;
       if (timeoutController.signal.aborted || totalElapsedMs >= deadlineMs || finalState.status === 'timeout') {
         return {
@@ -195,7 +171,6 @@ export class SupportIQGraphService {
         };
       }
 
-      // 6. Post-invoke cancellation check
       if (callerSignal?.aborted || finalState.status === 'aborted') {
         return {
           status: 'aborted',
@@ -208,7 +183,6 @@ export class SupportIQGraphService {
         };
       }
 
-      // 7. Error outcome check
       if (finalState.status === 'error') {
         return {
           status: 'error',
@@ -221,7 +195,6 @@ export class SupportIQGraphService {
         };
       }
 
-      // 8. Insufficient evidence outcome check
       if (finalState.status === 'insufficient_evidence') {
         return {
           status: 'insufficient_evidence',
@@ -237,7 +210,6 @@ export class SupportIQGraphService {
         };
       }
 
-      // 9. Defensive check: ONLY return answered when status is strictly 'answered'
       if (finalState.status === 'answered') {
         return {
           status: 'answered',
@@ -249,7 +221,6 @@ export class SupportIQGraphService {
         };
       }
 
-      // Any unexpected non-terminal state (including 'pending') maps to a safe internal error
       return {
         status: 'error',
         answer: STANDARD_TECHNICAL_ERROR_ANSWER,
@@ -262,7 +233,6 @@ export class SupportIQGraphService {
     } catch (err: unknown) {
       const totalElapsedMs = Date.now() - startTime;
 
-      // Handle invocation cancellation / rejection
       if (timeoutController.signal.aborted || totalElapsedMs >= deadlineMs) {
         return {
           status: 'timeout',

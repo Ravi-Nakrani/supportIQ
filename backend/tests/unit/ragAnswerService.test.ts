@@ -44,7 +44,6 @@ describe('RagAnswerService (Unit)', () => {
   beforeEach(async () => {
     vectorStore = new InMemoryVectorStore();
     embeddingService = new MockEmbeddingService({ dimensions: 3 });
-    // Default: query vector matches stored chunk vector [1, 0, 0]
     vi.spyOn(embeddingService, 'embedQuery').mockResolvedValue([1.0, 0.0, 0.0]);
 
     retrievalService = new RetrievalService({
@@ -59,7 +58,6 @@ describe('RagAnswerService (Unit)', () => {
       config: llmConfig,
     });
 
-    // Populate vector store with sample ShopEase chunk
     const chunkText =
       'Opened products that suffer from a manufacturing defect upon arrival may be returned within 30 days for a full refund or direct replacement.';
 
@@ -138,7 +136,6 @@ describe('RagAnswerService (Unit)', () => {
   });
 
   it('should short-circuit and skip LLM call when retrieval returns no chunks above threshold', async () => {
-    // Clear vector store so retrieval returns EMPTY_BELOW_THRESHOLD
     await vectorStore.clear();
 
     const result = await ragService.generateAnswer({
@@ -148,7 +145,6 @@ describe('RagAnswerService (Unit)', () => {
     expect(result.status).toBe('insufficient_evidence');
     expect(result.answer).toBe(STANDARD_REFUSAL_ANSWER);
     expect(result.sources).toEqual([]);
-    // Critical: LLM was never invoked, saving tokens and latency
     expect(mockLlm.invocationCount).toBe(0);
   });
 
@@ -182,7 +178,6 @@ describe('RagAnswerService (Unit)', () => {
       citations: [
         {
           chunkId: 'shopease-returns-policy#defective-products#1',
-          // Valid chunk ID, but quote does not exist in chunk
           quote: 'Free unconditional returns for five years.',
         },
       ],

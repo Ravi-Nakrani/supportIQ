@@ -1,9 +1,6 @@
 import type { Request, Response, NextFunction, ErrorRequestHandler, RequestHandler } from 'express';
 import { AppError, type ApiErrorEnvelope } from '../types/error.types.js';
 
-/**
- * 404 Not Found handler for unmatched routes.
- */
 export const notFoundHandler: RequestHandler = (req: Request, res: Response): void => {
   const fullPath = req.originalUrl ? req.originalUrl.split('?')[0] : req.path;
   const envelope: ApiErrorEnvelope = {
@@ -17,18 +14,12 @@ export const notFoundHandler: RequestHandler = (req: Request, res: Response): vo
   res.status(404).json(envelope);
 };
 
-/**
- * Centralized Express error-handling middleware.
- * Formats errors into the standard ApiErrorEnvelope.
- * Protects against internal diagnostic and stack trace leakage in public responses.
- */
 export const errorHandler: ErrorRequestHandler = (
   err: unknown,
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  // Handle known operational application errors
   if (err instanceof AppError) {
     const envelope: ApiErrorEnvelope = {
       error: {
@@ -42,7 +33,6 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  // Handle malformed JSON body from express.json()
   if (
     err instanceof SyntaxError &&
     'status' in err &&
@@ -62,10 +52,8 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  // Log unexpected errors server-side with stack trace
   console.error('[SERVER ERROR] Unhandled exception:', err);
 
-  // Return generic safe error response to client
   const fallbackEnvelope: ApiErrorEnvelope = {
     error: {
       code: 'INTERNAL_ERROR',
@@ -76,4 +64,3 @@ export const errorHandler: ErrorRequestHandler = (
 
   res.status(500).json(fallbackEnvelope);
 };
-

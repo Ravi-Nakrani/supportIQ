@@ -29,10 +29,6 @@ interface MongoVectorDoc extends Document {
   score?: number;
 }
 
-/**
- * Production MongoDB Atlas Vector Search adapter using native mongodb driver 7.7.x.
- * Connects directly to Atlas Vector Search via the $vectorSearch aggregation pipeline.
- */
 export class MongoAtlasVectorStore implements IVectorStore {
   private readonly config: VectorConfig;
   private client: MongoClient | null = null;

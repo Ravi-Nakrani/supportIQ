@@ -9,10 +9,6 @@ export interface MockEmbeddingServiceOptions {
   simulatedDelayMs?: number;
 }
 
-/**
- * Deterministic in-memory embedding service for testing.
- * Produces unit-length normalized vectors without network or provider costs.
- */
 export class MockEmbeddingService implements IEmbeddingService {
   private readonly modelName: string;
   private readonly dimensions: number;
@@ -35,9 +31,6 @@ export class MockEmbeddingService implements IEmbeddingService {
     this.delayMs = options.simulatedDelayMs ?? 0;
   }
 
-  /**
-   * Generates a deterministic normalized float vector derived from the input text.
-   */
   private generateVector(text: string): number[] {
     const hash = createHash('sha256').update(text).digest();
     const vector = new Array<number>(this.dimensions);
@@ -45,13 +38,11 @@ export class MockEmbeddingService implements IEmbeddingService {
     let normSquared = 0;
     for (let i = 0; i < this.dimensions; i++) {
       const byte = hash[i % hash.length]!;
-      // Map byte 0-255 to a float roughly between -1 and 1
       const val = (byte - 128) / 128.0;
       vector[i] = val;
       normSquared += val * val;
     }
 
-    // Normalize to unit length (L2 norm)
     const norm = Math.sqrt(normSquared) || 1;
     for (let i = 0; i < this.dimensions; i++) {
       vector[i] = vector[i]! / norm;

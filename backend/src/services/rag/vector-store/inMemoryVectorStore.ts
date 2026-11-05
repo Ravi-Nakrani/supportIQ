@@ -11,9 +11,6 @@ export interface InMemoryVectorStoreOptions {
   simulatedDelayMs?: number;
 }
 
-/**
- * Calculates cosine similarity between two float vectors.
- */
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
   let dot = 0;
@@ -30,10 +27,6 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return denominator === 0 ? 0 : dot / denominator;
 }
 
-/**
- * In-memory vector store for deterministic testing.
- * Implements full IVectorStore contract with cosine ranking and timeout/abort simulation.
- */
 export class InMemoryVectorStore implements IVectorStore {
   private readonly documents = new Map<string, VectorDocument>();
   public simulatedDelayMs: number;
@@ -79,7 +72,6 @@ export class InMemoryVectorStore implements IVectorStore {
     const scored: VectorSearchResult[] = [];
 
     for (const doc of this.documents.values()) {
-      // Apply simple filter if provided
       if (options.filter) {
         let match = true;
         for (const [key, value] of Object.entries(options.filter)) {
@@ -103,7 +95,6 @@ export class InMemoryVectorStore implements IVectorStore {
       }
     }
 
-    // Sort descending by score
     scored.sort((a, b) => b.score - a.score);
 
     return scored.slice(0, topK);
@@ -170,10 +161,8 @@ export class InMemoryVectorStore implements IVectorStore {
   }
 
   async close(): Promise<void> {
-    // No-op for in-memory store
   }
 
-  // Inspection helpers for tests
   getRawDocument(id: string): VectorDocument | undefined {
     return this.documents.get(id);
   }

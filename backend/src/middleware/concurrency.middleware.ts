@@ -4,15 +4,6 @@ export interface ConcurrencyOptions {
   limit: number;
 }
 
-/**
- * Creates an in-memory concurrency semaphore middleware.
- * Bounds simultaneous active graph executions to prevent Node event-loop starvation
- * and provider TPM/RPM bursts.
- *
- * Operational Note:
- * This semaphore is process-local. Distributed cluster-wide cost defense is enforced
- * persistently by MongoUsageTracker.
- */
 export function createConcurrencyLimiter(options: ConcurrencyOptions): {
   middleware: RequestHandler;
   getActiveCount: () => number;

@@ -11,12 +11,6 @@ import {
 
 export const MANIFEST_VERSION = '1.0.0';
 
-/**
- * Reads and parses existing manifest from disk. Returns null if file does not exist.
- *
- * @param manifestPath File path to the manifest JSON file.
- * @returns Parsed ManifestData or null if file not present.
- */
 export async function readExistingManifest(manifestPath: string): Promise<ManifestData | null> {
   try {
     const raw = await readFile(manifestPath, 'utf8');
@@ -39,19 +33,6 @@ export async function readExistingManifest(manifestPath: string): Promise<Manife
   }
 }
 
-/**
- * Compares current generated chunks against previous manifest state.
- *
- * Accurately categorizes into:
- * 1. added: New chunk IDs.
- * 2. updated: Chunks with altered contentHash OR altered metadataHash (metadata-only changes).
- * 3. unchanged: Identical chunk ID, contentHash, and metadataHash.
- * 4. removed: Stale chunk IDs from previous manifest that no longer exist.
- *
- * @param newChunks Newly generated knowledge chunks.
- * @param existingManifest Prior manifest from disk, or null.
- * @returns Categorized IngestionChangeReport.
- */
 export function compareChunksWithManifest(
   newChunks: KnowledgeChunk[],
   existingManifest: ManifestData | null
@@ -78,7 +59,6 @@ export function compareChunksWithManifest(
   const unchanged: KnowledgeChunk[] = [];
   const removed: Array<{ id: string; sourceId: string; sectionTitle: string }> = [];
 
-  // Check new chunks against existing manifest
   for (const chunk of newChunks) {
     const existing = existingMap.get(chunk.id);
     if (!existing) {
@@ -95,7 +75,6 @@ export function compareChunksWithManifest(
     }
   }
 
-  // Check for removed/stale chunks
   for (const [id, existingChunk] of existingMap.entries()) {
     if (!newMap.has(id)) {
       removed.push({
@@ -117,9 +96,6 @@ export function compareChunksWithManifest(
   };
 }
 
-/**
- * Constructs canonical DocumentManifestSummary records for the manifest.
- */
 export function buildDocumentSummaries(
   documents: SourceDocument[],
   chunks: KnowledgeChunk[]
@@ -148,24 +124,6 @@ export function buildDocumentSummaries(
   });
 }
 
-/**
- * Writes the manifest to disk atomically using a temporary file swap.
- *
- * If report.isIdempotent is true and an existing manifest is present:
- * - Skips disk mutation completely to preserve file timestamps and idempotency.
- * - Returns existing manifest.
- *
- * If changes are detected:
- * - Writes to `${manifestPath}.tmp`.
- * - Replaces `${manifestPath}` via atomic rename.
- *
- * @param manifestPath Target manifest file path.
- * @param documents Source documents loaded from disk.
- * @param chunks Generated knowledge chunks.
- * @param report Change report from compareChunksWithManifest.
- * @param existingManifest Existing manifest data if available.
- * @returns The persisted canonical ManifestData.
- */
 export async function writeManifestAtomically(
   manifestPath: string,
   documents: SourceDocument[],
@@ -173,7 +131,6 @@ export async function writeManifestAtomically(
   report: IngestionChangeReport,
   existingManifest: ManifestData | null
 ): Promise<ManifestData> {
-  // If no changes exist and we have a valid previous manifest, preserve it unchanged
   if (report.isIdempotent && existingManifest !== null) {
     return existingManifest;
   }
@@ -187,20 +144,18 @@ export async function writeManifestAtomically(
     documentCount: documents.length,
     chunkCount: chunks.length,
     documents: documentSummaries,
-    chunks, // Prunes stale chunks by only including current chunks
+    chunks,
   };
 
   const tempPath = `${manifestPath}.tmp`;
   const serialized = JSON.stringify(manifestData, null, 2) + '\n';
 
-  // Ensure target directory exists
   await mkdir(dirname(manifestPath), { recursive: true });
 
   try {
     await writeFile(tempPath, serialized, 'utf8');
     await rename(tempPath, manifestPath);
   } catch (error) {
-    // Clean up temporary file on failure
     await unlink(tempPath).catch(() => {});
     throw new Error(
       `[Manifest Error] Failed to atomically write manifest to "${manifestPath}": ${

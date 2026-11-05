@@ -54,7 +54,6 @@ describe('CitationValidator (Unit)', () => {
     const candidates = [
       {
         chunkId: 'shopease-shipping-policy#standard-delivery#2',
-        // Quote has multiple spaces and a newline
         quote: 'Standard domestic delivery   typically takes\n3 to 5 business days',
       },
     ];
@@ -80,7 +79,6 @@ describe('CitationValidator (Unit)', () => {
     expect(result.validatedCitations.length).toBe(0);
     expect(result.droppedCitations.length).toBe(1);
     expect(result.droppedCitations[0]?.reason).toContain('was not present in the retrieved chunk set');
-    // All citations failed -> marked ungrounded
     expect(result.isUngrounded).toBe(true);
   });
 
@@ -88,7 +86,6 @@ describe('CitationValidator (Unit)', () => {
     const candidates = [
       {
         chunkId: 'shopease-returns-policy#defective-products#1',
-        // Chunk ID is valid, but quote is completely absent from the chunk
         quote: 'Customers can return items for up to 365 days no questions asked.',
       },
     ];
@@ -132,7 +129,6 @@ describe('CitationValidator (Unit)', () => {
       },
     ];
 
-    // Enforce max 1 citation
     const result = validator.validate(candidates, retrievedChunks, true, {
       maxCitations: 1,
     });

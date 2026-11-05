@@ -21,10 +21,6 @@ export interface OpenAiChatServiceOptions {
   client?: OpenAI | undefined;
 }
 
-/**
- * Production LLM chat service utilizing the official OpenAI SDK.
- * Uses strict JSON Schema Structured Outputs and handles provider refusals, truncations, and timeouts.
- */
 export class OpenAiChatService implements ILlmChatService {
   private readonly config: LlmConfig;
   private readonly client: OpenAI;
@@ -42,9 +38,6 @@ export class OpenAiChatService implements ILlmChatService {
     }
   }
 
-  /**
-   * Internal generic executor for structured outputs via OpenAI SDK.
-   */
   private async executeStructuredCall<T>(
     schema: z.ZodType<T>,
     schemaName: string,
@@ -60,12 +53,10 @@ export class OpenAiChatService implements ILlmChatService {
     usage?: LlmCallUsage | undefined;
   }> {
     const timeoutMs = options?.timeoutMs ?? this.config.timeoutMs;
-    // Interactive chat calls disable automatic SDK retries to bound latency and prevent retry token billing
     const maxRetries = options?.maxRetries ?? 0;
     const maxCompletionTokens =
       options?.maxCompletionTokens ?? this.config.maxOutputTokens;
 
-    // Pre-flight input token estimate guard
     if (maxInputTokens) {
       const estimatedInputTokens = estimateChatRequestTokens(messages, null, this.config.chatModel);
       if (estimatedInputTokens > maxInputTokens) {
@@ -214,9 +205,6 @@ export class OpenAiChatService implements ILlmChatService {
     }
   }
 
-  /**
-   * Generates a grounded answer strictly conforming to rawLlmAnswerSchema.
-   */
   async generateStructuredAnswer(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options?: LlmChatRequestOptions
@@ -229,13 +217,10 @@ export class OpenAiChatService implements ILlmChatService {
         ...options,
         maxCompletionTokens: options?.maxCompletionTokens ?? this.config.maxOutputTokens,
       },
-      3500 // Max prompt input token ceiling
+      3500
     );
   }
 
-  /**
-   * Evaluates evidence sufficiency strictly conforming to evidenceAssessmentSchema.
-   */
   async assessEvidence(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options?: LlmChatRequestOptions
@@ -248,13 +233,10 @@ export class OpenAiChatService implements ILlmChatService {
         ...options,
         maxCompletionTokens: options?.maxCompletionTokens ?? 100,
       },
-      3000 // Max prompt input token ceiling
+      3000
     );
   }
 
-  /**
-   * Reformulates search query strictly conforming to queryRewriteSchema.
-   */
   async rewriteQuery(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options?: LlmChatRequestOptions
@@ -267,7 +249,7 @@ export class OpenAiChatService implements ILlmChatService {
         ...options,
         maxCompletionTokens: options?.maxCompletionTokens ?? 250,
       },
-      2200 // Max prompt input token ceiling
+      2200
     );
   }
 }

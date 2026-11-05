@@ -171,7 +171,6 @@ describe('MongoReadinessChecker (Unit)', () => {
     expect(result1.ready).toBe(true);
     expect(result1.status).toBe('ok');
 
-    // Second call within TTL should reuse cache and not invoke command again
     expect(mockDb.command).toHaveBeenCalledTimes(1);
     const result2 = await checker.checkReadiness();
     expect(result2.ready).toBe(true);

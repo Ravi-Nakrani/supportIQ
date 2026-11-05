@@ -96,7 +96,6 @@ describe('Embedding Service (Unit)', () => {
     });
 
     it('should preserve input-to-embedding mapping using response indices', async () => {
-      // Simulate OpenAI returning out-of-order response data
       const mockCreate = vi.fn().mockResolvedValue({
         data: [
           { index: 2, embedding: new Array(1536).fill(0.3) },
@@ -154,7 +153,6 @@ describe('Embedding Service (Unit)', () => {
 
       expect(vector).toHaveLength(1536);
 
-      // Verify L2 norm is ~1.0
       const normSquared = vector.reduce((sum, val) => sum + val * val, 0);
       expect(Math.abs(Math.sqrt(normSquared) - 1.0)).toBeLessThan(1e-5);
     });

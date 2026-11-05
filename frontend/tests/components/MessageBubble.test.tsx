@@ -49,12 +49,10 @@ describe('MessageBubble Component (Frontend)', () => {
       />
     );
 
-    // Content assertion
     expect(
       screen.getByText(/opened defective items can be returned in 30 days/i)
     ).toBeInTheDocument();
 
-    // Citation assertion
     const citationPill = screen.getByRole('button', {
       name: /View citation source: ShopEase Returns Policy — Defective Products/i,
     });
@@ -62,7 +60,6 @@ describe('MessageBubble Component (Frontend)', () => {
     await user.click(citationPill);
     expect(handleOpenCitation).toHaveBeenCalledWith(citation);
 
-    // Follow-up assertion
     const followUpBtn = screen.getByRole('button', { name: 'How do refunds work?' });
     expect(followUpBtn).toBeInTheDocument();
     await user.click(followUpBtn);
@@ -82,13 +79,11 @@ describe('MessageBubble Component (Frontend)', () => {
 
     render(<MessageBubble message={refusalMessage} />);
 
-    // Refusal badge assertion
     expect(screen.getByText('Documentation Insufficient')).toBeInTheDocument();
     expect(
       screen.getByText(/couldn't find enough information about that/i)
     ).toBeInTheDocument();
 
-    // No source citations should be present
     expect(screen.queryByText(/Sources \(/i)).not.toBeInTheDocument();
   });
 });

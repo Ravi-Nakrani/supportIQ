@@ -2,12 +2,6 @@ import { RetrievedChunk } from '../services/rag/retrieval/types.js';
 import { ConversationMessage } from '../services/rag/generation/types.js';
 import { GROUNDED_ANSWER_SYSTEM_PROMPT } from './groundedAnswer.prompt.js';
 
-/**
- * Escapes XML special characters in string values to prevent delimiter collision and tag breakout.
- *
- * @param value Raw untrusted string.
- * @returns Safely escaped XML string.
- */
 export function escapeXml(value: string): string {
   if (!value) {
     return '';
@@ -36,14 +30,9 @@ export interface BuiltPrompt {
   ];
 }
 
-/**
- * Constructs structured, XML-demarcated prompt payloads for grounded LLM answer generation.
- * All dynamic content (retrieved chunks, conversation history, user questions) is XML-escaped.
- */
 export function buildGroundedPrompt(params: BuildPromptParams): BuiltPrompt {
   const { chunks, question, history = [], maxHistoryItems = 6 } = params;
 
-  // 1. Format retrieved chunks into rigid XML <chunk> elements
   const chunkElements: string[] = [];
   for (const chunk of chunks) {
     const escapedId = escapeXml(chunk.id);
@@ -61,12 +50,10 @@ export function buildGroundedPrompt(params: BuildPromptParams): BuiltPrompt {
       ? `<document_context>\n${chunkElements.join('\n')}\n</document_context>`
       : '<document_context>\n  <!-- No relevant documents found -->\n</document_context>';
 
-  // 2. Format bounded conversation history (max 6 items)
   const boundedHistory = history.slice(-maxHistoryItems);
   const historyElements: string[] = [];
 
   for (const msg of boundedHistory) {
-    // Only permit valid user/assistant roles
     const safeRole = msg.role === 'assistant' ? 'assistant' : 'user';
     const escapedContent = escapeXml(msg.content);
     historyElements.push(`  <turn role="${safeRole}">${escapedContent}</turn>`);
@@ -77,11 +64,9 @@ export function buildGroundedPrompt(params: BuildPromptParams): BuiltPrompt {
       ? `<conversation_history>\n${historyElements.join('\n')}\n</conversation_history>`
       : '<conversation_history>\n  <!-- No previous conversation -->\n</conversation_history>';
 
-  // 3. Format user question
   const escapedQuestion = escapeXml(question.trim());
   const userQuestionXml = `<user_question>\n  ${escapedQuestion}\n</user_question>`;
 
-  // 4. Combine into single user message block
   const userMessage = [
     documentContextXml,
     conversationHistoryXml,

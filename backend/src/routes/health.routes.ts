@@ -9,7 +9,6 @@ export function createHealthRouter(options?: HealthRouterOptions): Router {
   const router: Router = Router();
   const controller = options?.healthController ?? defaultHealthController;
 
-  // GET /api/health
   router.get('/', controller.getHealth);
 
   return router;

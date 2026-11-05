@@ -32,14 +32,9 @@ export interface AppDependencies {
   readinessChecker?: IReadinessChecker | undefined;
 }
 
-/**
- * Express 5 application factory.
- * Decoupled from HTTP listener to allow deterministic Supertest integration testing.
- */
 export function createApp(deps?: AppDependencies): Application {
   const app: Application = express();
 
-  // Deliberate trust proxy configuration
   if (env.TRUST_PROXY === 'true') {
     app.set('trust proxy', true);
   } else if (env.TRUST_PROXY === 'false') {
@@ -50,20 +45,16 @@ export function createApp(deps?: AppDependencies): Application {
     app.set('trust proxy', env.TRUST_PROXY);
   }
 
-  // Ingress security headers
   app.use(helmet());
 
-  // CORS restricted strictly to configured FRONTEND_ORIGIN (non-credentialed)
   app.use(
     cors({
       origin: env.FRONTEND_ORIGIN,
     })
   );
 
-  // Payload protection: strictly cap JSON bodies at 10kb
   app.use(express.json({ limit: '10kb' }));
 
-  // JSON Body Parser Error Handling Middleware (Payload Too Large & Malformed JSON)
   app.use((err: unknown, _req: Request, res: Response, next: NextFunction): void => {
     if (err && typeof err === 'object') {
       const anyErr = err as { type?: string; status?: number };
@@ -91,10 +82,8 @@ export function createApp(deps?: AppDependencies): Application {
     next(err);
   });
 
-  // Request latency and access logging
   app.use(requestLogger);
 
-  // Health and Demo Routes
   const healthController =
     deps?.healthController ??
     (deps?.readinessChecker ? new HealthController(deps.readinessChecker) : defaultHealthController);
@@ -103,7 +92,6 @@ export function createApp(deps?: AppDependencies): Application {
   app.use('/api/health', healthRouter);
   app.use('/api/demo', demoRouter);
 
-  // Chat Route Resolution
   const rateLimiter =
     deps?.rateLimiter ??
     createRateLimiter({
@@ -155,11 +143,8 @@ export function createApp(deps?: AppDependencies): Application {
 
   app.use('/api/chat', chatRouter);
 
-  // Explicit API 404 Guard: Any unmatched /api/* route returns JSON 404 immediately
-  // and NEVER falls through to static assets or the SPA HTML fallback.
   app.use('/api', notFoundHandler);
 
-  // Static Assets & SPA Fallback (when SERVE_STATIC_FRONTEND === 'true' and NODE_ENV === 'production')
   if (env.SERVE_STATIC_FRONTEND === 'true' && env.NODE_ENV === 'production') {
     const defaultDistPath = path.resolve(import.meta.dirname, '../../frontend/dist');
     const frontendDistPath = env.FRONTEND_DIST_PATH ? path.resolve(env.FRONTEND_DIST_PATH) : defaultDistPath;
@@ -170,16 +155,11 @@ export function createApp(deps?: AppDependencies): Application {
     });
   }
 
-  // Catch unmatched non-API routes (when static serving is disabled or file does not exist)
   app.use(notFoundHandler);
 
-  // Centralized error boundary
   app.use(errorHandler);
 
   return app;
 }
 
-/**
- * Default application instance.
- */
 export const app: Application = createApp();

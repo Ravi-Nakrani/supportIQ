@@ -16,10 +16,6 @@ export interface MockLlmResponder {
   ): Promise<LlmChatExecutionResult> | LlmChatExecutionResult;
 }
 
-/**
- * Deterministic in-memory LLM chat service for offline testing.
- * Supports scripted FIFO responses, programmatic responders, and simulated failure states.
- */
 export class MockLlmChatService implements ILlmChatService {
   private responseQueue: LlmChatExecutionResult[] = [];
   private assessmentQueue: LlmAssessmentExecutionResult[] = [];
@@ -33,16 +29,10 @@ export class MockLlmChatService implements ILlmChatService {
   public lastMessages?: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> | undefined;
   public lastOptions?: LlmChatRequestOptions | undefined;
 
-  /**
-   * Enqueues a pre-configured execution result for answer generation.
-   */
   enqueueResponse(result: LlmChatExecutionResult): void {
     this.responseQueue.push(result);
   }
 
-  /**
-   * Enqueues a successful structured answer response.
-   */
   enqueueSuccess(data: RawLlmAnswer): void {
     this.enqueueResponse({
       status: 'SUCCESS',
@@ -51,16 +41,10 @@ export class MockLlmChatService implements ILlmChatService {
     });
   }
 
-  /**
-   * Enqueues a pre-configured execution result for evidence assessment.
-   */
   enqueueAssessmentResponse(result: LlmAssessmentExecutionResult): void {
     this.assessmentQueue.push(result);
   }
 
-  /**
-   * Enqueues a successful evidence assessment response.
-   */
   enqueueAssessmentSuccess(data: EvidenceAssessment): void {
     this.enqueueAssessmentResponse({
       status: 'SUCCESS',
@@ -68,16 +52,10 @@ export class MockLlmChatService implements ILlmChatService {
     });
   }
 
-  /**
-   * Enqueues a pre-configured execution result for query rewriting.
-   */
   enqueueRewriteResponse(result: LlmRewriteExecutionResult): void {
     this.rewriteQueue.push(result);
   }
 
-  /**
-   * Enqueues a successful query rewrite response.
-   */
   enqueueRewriteSuccess(data: QueryRewriteResult): void {
     this.enqueueRewriteResponse({
       status: 'SUCCESS',
@@ -85,16 +63,10 @@ export class MockLlmChatService implements ILlmChatService {
     });
   }
 
-  /**
-   * Sets a fallback responder called when the answer queue is exhausted.
-   */
   setDefaultResponder(responder: MockLlmResponder): void {
     this.defaultResponder = responder;
   }
 
-  /**
-   * Clears all queued responses and call history.
-   */
   reset(): void {
     this.responseQueue = [];
     this.assessmentQueue = [];
@@ -136,7 +108,6 @@ export class MockLlmChatService implements ILlmChatService {
       return await this.defaultResponder(messages, options);
     }
 
-    // Default safe refusal response if queue is empty
     return {
       status: 'SUCCESS',
       data: {
@@ -175,7 +146,6 @@ export class MockLlmChatService implements ILlmChatService {
       return nextAssessment;
     }
 
-    // Default assessment: sufficient evidence
     return {
       status: 'SUCCESS',
       data: {
@@ -211,7 +181,6 @@ export class MockLlmChatService implements ILlmChatService {
       return nextRewrite;
     }
 
-    // Default rewrite: returns original message query
     return {
       status: 'SUCCESS',
       data: {

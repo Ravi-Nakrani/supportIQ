@@ -12,17 +12,9 @@ export interface SplitterOptions {
 const DEFAULT_CHUNK_SIZE = 800;
 const DEFAULT_CHUNK_OVERLAP = 120;
 
-/**
- * Computes canonical SHA-256 hash across the 9 defined metadata fields.
- * Explicitly excludes contentHash and metadataHash to avoid circularity.
- *
- * @param meta Chunk metadata object without hashes.
- * @returns 64-character lowercase hex digest.
- */
 export function computeMetadataHash(
   meta: Omit<ChunkMetadata, 'contentHash' | 'metadataHash'>
 ): string {
-  // Alphabetically sorted keys for deterministic serialization
   const canonicalPayload = {
     category: meta.category,
     chunkIndex: meta.chunkIndex,
@@ -40,30 +32,11 @@ export function computeMetadataHash(
     .digest('hex');
 }
 
-/**
- * Computes SHA-256 content hash of normalized chunk text.
- *
- * @param text The chunk text.
- * @returns 64-character lowercase hex digest.
- */
 export function computeContentHash(text: string): string {
   const normalized = text.replace(/\r\n/g, '\n').trim();
   return createHash('sha256').update(normalized, 'utf8').digest('hex');
 }
 
-/**
- * Splits parsed markdown sections into sized KnowledgeChunks using LangChain's
- * RecursiveCharacterTextSplitter.
- *
- * Preserves source and heading metadata across all sub-chunks and tracks a
- * document-wide sequential chunkIndex.
- *
- * @param frontmatter Validated document frontmatter.
- * @param sections Array of parsed MarkdownSection objects from the document.
- * @param sourcePath Relative source file path.
- * @param options Configurable chunkSize and chunkOverlap.
- * @returns Array of KnowledgeChunk objects with deterministic IDs and hashes.
- */
 export async function splitSectionsToChunks(
   frontmatter: DocumentFrontmatter,
   sections: MarkdownSection[],
@@ -88,7 +61,6 @@ export async function splitSectionsToChunks(
       continue;
     }
 
-    // Determine sub-chunks: if within target size, avoid splitting; otherwise use LangChain splitter
     let subChunkTexts: string[];
     if (rawContent.length <= chunkSize) {
       subChunkTexts = [rawContent];

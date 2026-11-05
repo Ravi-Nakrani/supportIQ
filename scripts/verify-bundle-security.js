@@ -19,7 +19,6 @@ if (!fs.existsSync(frontendDist)) {
   process.exit(1);
 }
 
-// Secret detection patterns
 const SECRET_RULES = [
   {
     name: 'OpenAI Secret API Key',
@@ -68,7 +67,6 @@ for (const filePath of allFiles) {
   const relativePath = path.relative(monorepoRoot, filePath);
   const ext = path.extname(filePath).toLowerCase();
 
-  // Inspect web source and map files
   if (!['.js', '.mjs', '.html', '.css', '.json', '.map'].includes(ext)) {
     continue;
   }

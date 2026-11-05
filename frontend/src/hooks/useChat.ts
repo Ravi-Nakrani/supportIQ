@@ -39,13 +39,6 @@ export interface UseChatReturn {
   dismissError: () => void;
 }
 
-/**
- * Filter eligible history messages for backend API submission:
- * - Only includes settled, non-error messages.
- * - Only includes roles 'user' and 'assistant'.
- * - Selects at most the latest 6 messages.
- * - Never includes the active/current question being sent.
- */
 export function buildBoundedHistory(messages: UIMessage[]): HistoryMessage[] {
   const eligible = messages
     .filter(
@@ -71,12 +64,10 @@ export function useChat(): UseChatReturn {
   const [demoMetadata, setDemoMetadata] = useState<DemoMetadataResponse | null>(null);
   const [isMetadataLoading, setIsMetadataLoading] = useState<boolean>(true);
 
-  // Cold-start warm-up tracking (85-second bounded probe window)
   const [backendReadiness, setBackendReadiness] = useState<'checking' | 'ready' | 'degraded'>('checking');
   const [queuedMessage, setQueuedMessage] = useState<string | null>(null);
   const queuedMessageRef = useRef<string | null>(null);
 
-  // Guards against stale requests and race conditions after New Chat
   const conversationGenerationRef = useRef<number>(0);
   const activeControllerRef = useRef<AbortController | null>(null);
   const lastSubmittedQueryRef = useRef<string | null>(null);
@@ -85,7 +76,6 @@ export function useChat(): UseChatReturn {
 
   const isBackendWarmingUp = backendReadiness === 'checking';
 
-  // Fetch demo metadata once on mount
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -101,7 +91,6 @@ export function useChat(): UseChatReturn {
           return;
         }
         if (isMounted) {
-          // Graceful fallback to static ShopEase metadata
           setDemoMetadata(FALLBACK_DEMO_METADATA);
         }
       } finally {
@@ -123,11 +112,9 @@ export function useChat(): UseChatReturn {
     setError(null);
     lastSubmittedQueryRef.current = trimmed;
 
-    // 1. Snapshot current generation and construct history from existing messages
     const requestGeneration = conversationGenerationRef.current;
     const historyPayload = buildBoundedHistory(messagesRef.current);
 
-    // 2. Add user question to in-memory message list
     const userMessage: UIMessage = {
       id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       role: 'user',
@@ -138,7 +125,6 @@ export function useChat(): UseChatReturn {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    // 3. Create fresh AbortController with 30s client timeout
     const controller = new AbortController();
     activeControllerRef.current = controller;
 
@@ -155,7 +141,6 @@ export function useChat(): UseChatReturn {
         controller.signal
       );
 
-      // Generation guard: ignore completions from older conversations
       if (conversationGenerationRef.current !== requestGeneration) {
         return;
       }
@@ -224,7 +209,6 @@ export function useChat(): UseChatReturn {
     }
   }, []);
 
-  // Bounded warm-up probing loop (85s maximum window, 4s polling intervals)
   const probeReadiness = useCallback(
     async (signal: AbortSignal) => {
       const WARM_UP_MAX_MS = 85000;
@@ -247,7 +231,6 @@ export function useChat(): UseChatReturn {
             return;
           }
         } catch {
-          // Probe error, continue loop
         }
 
         await new Promise<void>((resolve) => {
@@ -290,16 +273,13 @@ export function useChat(): UseChatReturn {
   }, []);
 
   const resetConversation = useCallback(() => {
-    // 1. Advance conversation generation to invalidate any in-flight requests
     conversationGenerationRef.current += 1;
 
-    // 2. Abort active request if in flight
     if (activeControllerRef.current) {
       activeControllerRef.current.abort('NEW_CHAT_RESET');
       activeControllerRef.current = null;
     }
 
-    // 3. Clear in-memory conversation state
     setMessages([]);
     setError(null);
     setIsLoading(false);
@@ -314,7 +294,6 @@ export function useChat(): UseChatReturn {
         return;
       }
 
-      // If backend is still warming up, queue the question
       if (backendReadiness === 'checking') {
         queuedMessageRef.current = trimmed;
         setQueuedMessage(trimmed);

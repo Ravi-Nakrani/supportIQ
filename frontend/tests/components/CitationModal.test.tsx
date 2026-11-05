@@ -70,7 +70,6 @@ describe('CitationModal Component (Frontend)', () => {
     const handleClose = vi.fn();
     render(<CitationModal citation={sampleCitation} onClose={handleClose} />);
 
-    // Click presentation backdrop container
     const backdrop = screen.getByRole('presentation');
     await user.click(backdrop);
 

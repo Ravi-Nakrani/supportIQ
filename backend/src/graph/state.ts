@@ -9,17 +9,7 @@ import {
   WorkflowUsageMetrics,
 } from '../services/rag/generation/types.js';
 
-/**
- * Annotation definition governing the SupportIQ LangGraph workflow state.
- *
- * State design principles:
- * 1. Initialized strictly to 'pending' to distinguish an active/unprocessed graph
- *    from a verified terminal result.
- * 2. Signal is kept out of state and passed via LangGraph RunnableConfig.
- * 3. Channels use standard replacement reducers suitable for sequential node updates.
- */
 export const SupportIQGraphAnnotation = Annotation.Root({
-  // --- Input Parameters (immutable across graph execution) ---
   question: Annotation<string>(),
   history: Annotation<ConversationMessage[]>({
     reducer: (_prev, next) => next,
@@ -34,7 +24,6 @@ export const SupportIQGraphAnnotation = Annotation.Root({
     default: () => undefined,
   }),
 
-  // --- Execution & Iteration State ---
   currentQuery: Annotation<string>({
     reducer: (_prev, next) => next,
     default: () => '',
@@ -56,7 +45,6 @@ export const SupportIQGraphAnnotation = Annotation.Root({
     default: () => null,
   }),
 
-  // --- Terminal Output State (initialized strictly to 'pending') ---
   status: Annotation<GraphExecutionStatus>({
     reducer: (_prev, next) => next,
     default: () => 'pending',
@@ -94,7 +82,6 @@ export const SupportIQGraphAnnotation = Annotation.Root({
         embeddingTokens,
         promptTokens,
         completionTokens,
-        // Invariant strictly verified and maintained:
         totalTokens: embeddingTokens + promptTokens + completionTokens,
         isComplete: current.isComplete && update.isComplete,
       };
@@ -110,4 +97,3 @@ export const SupportIQGraphAnnotation = Annotation.Root({
 });
 
 export type SupportIQGraphState = typeof SupportIQGraphAnnotation.State;
-

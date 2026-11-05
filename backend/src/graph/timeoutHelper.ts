@@ -8,11 +8,6 @@ export interface BudgetCalculationResult {
   remainingMs: number;
 }
 
-/**
- * Calculates the dynamic remaining time budget for a workflow node,
- * ensuring no individual operation exceeds either its designated timeout
- * or the master 20-second workflow deadline.
- */
 export function calculateRemainingBudget(
   state: SupportIQGraphState,
   standardTimeoutMs: number,
@@ -35,4 +30,3 @@ export function calculateRemainingBudget(
     remainingMs,
   };
 }
-

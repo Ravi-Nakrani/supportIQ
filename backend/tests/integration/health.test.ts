@@ -67,7 +67,6 @@ describe('GET /api/health (Integration)', () => {
       timestamp: '2026-11-05T12:00:00.000Z',
       version: '1.0.0',
     });
-    // Ensure internal reason is NOT leaked to public client
     expect((response.body as any).reason).toBeUndefined();
     expect((response.body as any).details).toBeUndefined();
   });

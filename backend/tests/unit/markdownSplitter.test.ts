@@ -39,7 +39,6 @@ describe('Markdown Splitter (Unit)', () => {
   });
 
   it('should split oversized sections using LangChain RecursiveCharacterTextSplitter', async () => {
-    // Generate long text > 1000 characters
     const longParagraph =
       'ShopEase customer return policy guarantees that all customers have access to simple, fair returns. '.repeat(
         15
@@ -61,7 +60,6 @@ describe('Markdown Splitter (Unit)', () => {
     );
 
     expect(chunks.length).toBeGreaterThan(1);
-    // All sub-chunks must retain the section title and heading hierarchy
     for (let i = 0; i < chunks.length; i++) {
       expect(chunks[i]?.metadata.sectionTitle).toBe('Detailed Terms');
       expect(chunks[i]?.metadata.headingHierarchy).toEqual([
@@ -105,7 +103,6 @@ describe('Markdown Splitter (Unit)', () => {
   });
 
   it('should guarantee chunk ID uniqueness even when section titles are repeated', async () => {
-    // Two sections with the identical heading "Overview"
     const sections: MarkdownSection[] = [
       {
         headingHierarchy: ['Title', 'Overview'],
@@ -154,7 +151,6 @@ describe('Markdown Splitter (Unit)', () => {
       chunkIndex: 0,
     };
 
-    // Exact same values, created in different property order
     const metaB = {
       chunkIndex: 0,
       sourceTitle: 'ShopEase Returns Policy',

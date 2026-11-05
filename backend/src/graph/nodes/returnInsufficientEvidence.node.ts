@@ -4,12 +4,6 @@ import {
 } from '../../services/rag/generation/types.js';
 import { SupportIQGraphState } from '../state.js';
 
-/**
- * Node: returnInsufficientEvidence
- *
- * Terminal node constructing a standardized refusal response when retrieved documentation
- * does not adequately answer the customer's question.
- */
 export function returnInsufficientEvidence(
   state: SupportIQGraphState
 ): Partial<SupportIQGraphState> {

@@ -60,7 +60,6 @@ describe('Rate Limiter Middleware (Unit)', () => {
     limiter(ctx2.req, ctx2.res, ctx2.next);
     expect(ctx2.next).toHaveBeenCalled();
 
-    // 3rd request from same IP should be blocked
     const ctx3 = createMockContext('1.2.3.4');
     limiter(ctx3.req, ctx3.res, ctx3.next);
 
@@ -84,7 +83,6 @@ describe('Rate Limiter Middleware (Unit)', () => {
     limiter(ctx1.req, ctx1.res, ctx1.next);
     expect(ctx1.next).toHaveBeenCalled();
 
-    // Different IP should still be allowed
     const ctx2 = createMockContext('10.0.0.2');
     limiter(ctx2.req, ctx2.res, ctx2.next);
     expect(ctx2.next).toHaveBeenCalled();

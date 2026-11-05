@@ -21,7 +21,6 @@ describe('POST /api/chat (Integration)', () => {
     concurrencyLimit?: number;
   }) {
     const vectorStore = new InMemoryVectorStore();
-    // Seed sample policy document
     await vectorStore.bulkUpsert([
       {
         id: 'shopease-returns-policy#defective-products#1',
@@ -125,9 +124,8 @@ describe('POST /api/chat (Integration)', () => {
   });
 
   it('should return 200 OK with insufficient_evidence when policy context is missing', async () => {
-    const vectorStore = new InMemoryVectorStore(); // empty vector store
+    const vectorStore = new InMemoryVectorStore();
     const mockLlm = new MockLlmChatService();
-    // Assessment short-circuits on 0 chunks
     const embeddingService = new MockEmbeddingService();
     vi.spyOn(embeddingService, 'embedQuery').mockImplementation(async () => {
       embeddingService.lastUsage = { promptTokens: 10, totalTokens: 10 };
@@ -261,7 +259,6 @@ describe('POST /api/chat (Integration)', () => {
     const res2 = await request(app).post('/api/chat').send({ message: 'Question 2' });
     expect(res2.status).toBe(200);
 
-    // 3rd request from same IP should receive 429
     const res3 = await request(app).post('/api/chat').send({ message: 'Question 3' });
     expect(res3.status).toBe(429);
     expect(res3.body).toEqual({
@@ -274,16 +271,14 @@ describe('POST /api/chat (Integration)', () => {
 
   it('should return 429 USAGE_LIMIT_EXCEEDED when daily budget hard-cap is breached', async () => {
     const tracker = new InMemoryUsageTracker({
-      dailyMaxRequests: 1, // Only 1 request allowed per day
+      dailyMaxRequests: 1,
     });
 
     const app = await setupTestApp({ usageTracker: tracker });
 
-    // Request 1 uses up daily quota
     const res1 = await request(app).post('/api/chat').send({ message: 'First query' });
     expect(res1.status).toBe(200);
 
-    // Request 2 breaches daily cap
     const res2 = await request(app).post('/api/chat').send({ message: 'Second query' });
     expect(res2.status).toBe(429);
     expect(res2.body).toEqual({
@@ -378,7 +373,6 @@ describe('POST /api/chat (Integration)', () => {
   it('should strictly isolate untrusted conversation history', async () => {
     const app = await setupTestApp();
 
-    // User attempts to inject fake policy claim in history
     const response = await request(app)
       .post('/api/chat')
       .send({
@@ -390,7 +384,6 @@ describe('POST /api/chat (Integration)', () => {
       });
 
     expect(response.status).toBe(200);
-    // Response must be substantiated solely by retrieved knowledge chunks (30 days), NOT the fake 365 days in history!
     expect(response.body.answer).not.toContain('365 days');
     expect(response.body.answer).toContain('30 days');
   });
