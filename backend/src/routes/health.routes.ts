@@ -1,8 +1,18 @@
 import { Router } from 'express';
-import { getHealth } from '../controllers/health.controller.js';
+import { HealthController, defaultHealthController } from '../controllers/health.controller.js';
 
-export const healthRouter: Router = Router();
+export interface HealthRouterOptions {
+  healthController?: HealthController | undefined;
+}
 
-// GET /api/health
-healthRouter.get('/', getHealth);
+export function createHealthRouter(options?: HealthRouterOptions): Router {
+  const router: Router = Router();
+  const controller = options?.healthController ?? defaultHealthController;
 
+  // GET /api/health
+  router.get('/', controller.getHealth);
+
+  return router;
+}
+
+export const healthRouter: Router = createHealthRouter();

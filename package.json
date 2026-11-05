@@ -16,6 +16,9 @@
     "dev:frontend": "npm run dev --workspace=@supportiq/frontend",
     "ingest:knowledge-base": "npm run ingest:knowledge-base --workspace=@supportiq/backend --",
     "build": "npm run build --workspaces",
+    "build:all": "npm run build --workspaces",
+    "start": "npm run start --workspace=@supportiq/backend",
+    "verify:bundle-security": "node scripts/verify-bundle-security.js",
     "test": "npm run test --workspaces",
     "type-check": "npm run type-check --workspaces"
   },

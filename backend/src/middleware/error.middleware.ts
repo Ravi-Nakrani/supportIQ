@@ -5,10 +5,11 @@ import { AppError, type ApiErrorEnvelope } from '../types/error.types.js';
  * 404 Not Found handler for unmatched routes.
  */
 export const notFoundHandler: RequestHandler = (req: Request, res: Response): void => {
+  const fullPath = req.originalUrl ? req.originalUrl.split('?')[0] : req.path;
   const envelope: ApiErrorEnvelope = {
     error: {
       code: 'NOT_FOUND',
-      message: `Cannot ${req.method} ${req.path}`,
+      message: `Cannot ${req.method} ${fullPath}`,
       details: null,
     },
   };

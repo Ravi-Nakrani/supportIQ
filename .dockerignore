@@ -1,0 +1,13 @@
+node_modules
+.git
+.gitignore
+.env*
+!.env.example
+.gemini
+dist
+backend/dist
+frontend/dist
+coverage
+*.log
+scratch
+

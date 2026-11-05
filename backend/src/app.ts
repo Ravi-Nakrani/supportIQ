@@ -1,10 +1,13 @@
 import express, { type Application, Request, Response, NextFunction, RequestHandler } from 'express';
+import path from 'node:path';
 import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import { requestLogger } from './middleware/logger.middleware.js';
 import { notFoundHandler, errorHandler } from './middleware/error.middleware.js';
-import { healthRouter } from './routes/health.routes.js';
+import { createHealthRouter } from './routes/health.routes.js';
+import { HealthController, defaultHealthController } from './controllers/health.controller.js';
+import { IReadinessChecker } from './services/health/readinessChecker.js';
 import { demoRouter } from './routes/demo.routes.js';
 import { createChatRouter } from './routes/chat.routes.js';
 import { ChatController } from './controllers/chat.controller.js';
@@ -25,6 +28,8 @@ export interface AppDependencies {
   rateLimiter?: RequestHandler | undefined;
   concurrencyLimiter?: RequestHandler | undefined;
   chatController?: ChatController | undefined;
+  healthController?: HealthController | undefined;
+  readinessChecker?: IReadinessChecker | undefined;
 }
 
 /**
@@ -90,6 +95,11 @@ export function createApp(deps?: AppDependencies): Application {
   app.use(requestLogger);
 
   // Health and Demo Routes
+  const healthController =
+    deps?.healthController ??
+    (deps?.readinessChecker ? new HealthController(deps.readinessChecker) : defaultHealthController);
+  const healthRouter = createHealthRouter({ healthController });
+
   app.use('/api/health', healthRouter);
   app.use('/api/demo', demoRouter);
 
@@ -145,7 +155,22 @@ export function createApp(deps?: AppDependencies): Application {
 
   app.use('/api/chat', chatRouter);
 
-  // Catch unmatched routes (404 Not Found)
+  // Explicit API 404 Guard: Any unmatched /api/* route returns JSON 404 immediately
+  // and NEVER falls through to static assets or the SPA HTML fallback.
+  app.use('/api', notFoundHandler);
+
+  // Static Assets & SPA Fallback (when SERVE_STATIC_FRONTEND === 'true' and NODE_ENV === 'production')
+  if (env.SERVE_STATIC_FRONTEND === 'true' && env.NODE_ENV === 'production') {
+    const defaultDistPath = path.resolve(import.meta.dirname, '../../frontend/dist');
+    const frontendDistPath = env.FRONTEND_DIST_PATH ? path.resolve(env.FRONTEND_DIST_PATH) : defaultDistPath;
+
+    app.use(express.static(frontendDistPath, { index: false }));
+    app.get('*', (_req: Request, res: Response): void => {
+      res.sendFile(path.join(frontendDistPath, 'index.html'));
+    });
+  }
+
+  // Catch unmatched non-API routes (when static serving is disabled or file does not exist)
   app.use(notFoundHandler);
 
   // Centralized error boundary

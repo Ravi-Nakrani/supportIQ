@@ -14,14 +14,28 @@ import { RetrievalService } from './services/rag/retrieval/retrievalService.js';
 import { SupportIQGraphService } from './graph/supportiqGraph.js';
 import { MongoUsageTracker } from './services/usage/mongoUsageTracker.js';
 import { InMemoryUsageTracker } from './services/usage/inMemoryUsageTracker.js';
+import { MongoReadinessChecker } from './services/health/readinessChecker.js';
 
 const isProduction = env.NODE_ENV === 'production';
 const isLiveMode = Boolean(env.OPENAI_API_KEY);
 
-// 1. Strict Startup Guard: Fail closed if production or live LLM mode lacks persistent MongoDB storage
-if ((isProduction || isLiveMode) && !env.MONGODB_URI) {
+// 1. Strict Startup Guard: Require both MONGODB_URI and OPENAI_API_KEY in production; fail closed.
+if (isProduction) {
+  if (!env.MONGODB_URI) {
+    console.error(
+      '[FATAL CONFIG ERROR] MONGODB_URI is strictly mandatory in production. Failing closed.'
+    );
+    process.exit(1);
+  }
+  if (!env.OPENAI_API_KEY) {
+    console.error(
+      '[FATAL CONFIG ERROR] OPENAI_API_KEY is strictly mandatory in production. Failing closed.'
+    );
+    process.exit(1);
+  }
+} else if (isLiveMode && !env.MONGODB_URI) {
   console.error(
-    '[FATAL CONFIG ERROR] MONGODB_URI is strictly mandatory in production or when live OPENAI_API_KEY is configured. Failing closed.'
+    '[FATAL CONFIG ERROR] MONGODB_URI is strictly mandatory when live OPENAI_API_KEY is configured. Failing closed.'
   );
   process.exit(1);
 }
@@ -100,10 +114,37 @@ const usageTracker = mongoClient
       reservedRequests: 1,
     });
 
-// 5. Instantiate Express application with injected dependencies
+// 5. Enforce Mock Prohibition in Production: Production cannot silently instantiate mock adapters
+if (isProduction) {
+  if (
+    vectorStore instanceof InMemoryVectorStore ||
+    embeddingService instanceof MockEmbeddingService ||
+    llmChatService instanceof MockLlmChatService ||
+    usageTracker instanceof InMemoryUsageTracker
+  ) {
+    console.error(
+      '[FATAL CONFIG ERROR] Production mode cannot instantiate mock adapters. All services must be live. Failing closed.'
+    );
+    process.exit(1);
+  }
+}
+
+// 6. Instantiate Readiness Checker for GET /api/health?ready=true
+const readinessChecker = mongoClient
+  ? new MongoReadinessChecker({
+      client: mongoClient,
+      dbName: env.MONGODB_DB_NAME,
+      vectorCollectionName: env.MONGODB_VECTOR_COLLECTION,
+      vectorIndexName: env.MONGODB_VECTOR_INDEX_NAME,
+      usageCollectionName: env.MONGODB_USAGE_COLLECTION,
+    })
+  : undefined;
+
+// 7. Instantiate Express application with injected dependencies
 const app = createApp({
   graphService,
   usageTracker,
+  readinessChecker,
 });
 
 /**

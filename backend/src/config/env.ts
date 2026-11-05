@@ -139,6 +139,8 @@ export const envSchema = z.object({
     .default(5),
   MONGODB_USAGE_COLLECTION: z.string().trim().min(1).default('daily_usage'),
   TRUST_PROXY: z.string().trim().default('false'),
+  SERVE_STATIC_FRONTEND: z.enum(['true', 'false']).default('false'),
+  FRONTEND_DIST_PATH: z.string().trim().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

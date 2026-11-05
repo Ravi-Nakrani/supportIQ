@@ -10,6 +10,7 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "ingest:knowledge-base": "tsx scripts/ingest-knowledge-base.ts",
+    "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit"
